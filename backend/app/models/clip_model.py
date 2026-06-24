@@ -17,7 +17,7 @@ class CLIPHandler:
             images=image,
             return_tensors="pt",
             # padding=True
-        ).to(self.device)
+        ).to(self.device) # 
 
         with torch.no_grad():
             outputs = self.model(**inputs)
@@ -30,14 +30,14 @@ class CLIPHandler:
 
         similarity = (image_embeds @ text_embeds.T).item()
 
-        print("Image shape:", image_embeds.shape)
-        print("Text shape:", text_embeds.shape)
+        # print("Image shape:", image_embeds.shape)
+        # print("Text shape:", text_embeds.shape)
 
-        dot_product = image_embeds @ text_embeds.T
-        print("Dot Product:", dot_product)
+        # dot_product = image_embeds @ text_embeds.T
+        # print("Dot Product:", dot_product)
 
-        similarity = dot_product.item()
-        print("Similarity:", similarity)
+        # similarity = dot_product.item()
+        # print("Similarity:", similarity)
 
         return similarity
 
