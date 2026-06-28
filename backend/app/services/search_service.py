@@ -1,14 +1,18 @@
 from tavily import TavilyClient
-from app.services.summarizer_service import summarize_caption
 from app.core.config import settings
 
 
-client = TavilyClient(settings.TAVILY_API_KEY)
-response = client.search(
-    query="",
-    topic="news",
-    search_depth="advanced",
-    max_results=5,
-    include_usage=True
+def get_search_client():
+    return TavilyClient(settings.TAVILY_API_KEY)
+
+def search_related_news(query: str):
+    client = get_search_client()
+    response = client.search(
+        query=query,
+        topic="news",
+        search_depth="advanced",
+        max_results=5,
+        include_usage=True,
+        include_domains=["detik.com", "kompas.com", "cnnindonesia.com", "tribunnews.com", "liputan6.com"]
 )
-print(response)
+    return response

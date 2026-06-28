@@ -1,4 +1,3 @@
-# test_clip_manual.py (taruh di folder backend/, sejajar dengan app/)
 from app.models.clip_model import clip_handler
 from PIL import Image
 
