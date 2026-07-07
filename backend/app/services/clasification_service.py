@@ -9,6 +9,12 @@ from app.core.constants import (
     LABEL_FALSE
 )
 
+def classify_text_only ( kredibilitas_score: float) -> str:
+    if kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
+        return LABEL_FAKTA
+    else:
+        return LABEL_FALSE
+
 def classify_content(similarity_score: float, kredibilitas_score: float) -> str:
     if similarity_score >= SIMILARITY_THRESHOLD_HIGH and kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
         return LABEL_FAKTA

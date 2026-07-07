@@ -12,4 +12,9 @@ response = client.search(
     include_usage=True,
     include_domains=["detik.com", "kompas.com", "cnnindonesia.com", "tribunnews.com", "liputan6.com"]
 )
-print(response)
+
+result = response.get("results", [])
+print (f"[INFO] Tavily menemukan {len(result)} artikel untuk query: '{text}'")
+print(result)
+
+
