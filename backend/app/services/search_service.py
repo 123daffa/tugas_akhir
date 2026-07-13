@@ -1,11 +1,11 @@
 from tavily import TavilyClient
-from backend.app.core.constants import TAVILY_MAX_RESULTS, TAVILY_SEARCH_DEPTH, TAVILY_TOPIC, INCLUDE_DOMAINS
+from app.core.constants import TAVILY_MAX_RESULTS, TAVILY_SEARCH_DEPTH, TAVILY_TOPIC, INCLUDE_DOMAINS
 from app.core.config import settings
 
 
 tavily_client = TavilyClient(settings.TAVILY_API_KEY)
 
-async def search_related_news(query: str) -> list:
+def search_related_news(query: str) -> list:
 
     try: 
         client = tavily_client
@@ -20,6 +20,8 @@ async def search_related_news(query: str) -> list:
         
         results = response.get("results", [])
         print(f"[INFO] Tavily menemukan {len(results)} artikel untuk query: '{query}'")
+        for article in results:
+            print(f"  - {article.get('title')} ({article.get('url')}) | Score: {article.get('score')}")
         return results
 
     except Exception as e:

@@ -15,6 +15,7 @@ response = client.search(
 
 result = response.get("results", [])
 print (f"[INFO] Tavily menemukan {len(result)} artikel untuk query: '{text}'")
-print(result)
+for article in result:
+    print(f"  - {article.get('title')} ({article.get('url')}) | Score: {article.get('score')}")
 
 

@@ -1,26 +1,43 @@
-# from app.services.summarizer_service import summarize_caption
-# from app.services.similarity_service import calculate_image_text_similarity
-# from app.services.search_service import search_related_news
-# from app.services.groq_service import get_kredibilitas_score, classify_content
+from app.models.translator_model import translator_handler
+from app.models.clip_model import clip_handler
+# from app.services.groq_service import summarize_tavily_results
+from app.services.search_service import search_related_news
+from app.services.kredibilitas_service import calculate_kredibilitas_score
+from app.services.classification_service import classify_content
+from PIL import Image
+import io
 
-# async def run_image_pipeline(image_bytes: bytes, caption: str) -> dict:
-#     # Step 1: Hitung similarity CLIP
-#     similarity_score = calculate_image_text_similarity(image_bytes, caption)
-    
-#     # Step 2: Summarize caption jadi query
-#     query_text = summarize_caption(caption)
-    
-#     # Step 3: Cari berita terkait via Tavily
-#     berita = await search_related_news(query_text)
-    
-#     # Step 4: Groq hitung kredibilitas dari berita
-#     kredibilitas_score = await get_kredibilitas_score(berita, caption)
-    
-#     # Step 5: Klasifikasi akhir
-#     hasil = classify_content(similarity_score, kredibilitas_score)
-    
-#     return {
-#         "similarity_score": similarity_score,
-#         "kredibilitas_score": kredibilitas_score,
-#         "klasifikasi": hasil
-#     }
+def run_image_pipeline(image_bytes: bytes, caption: str) -> dict:
+    # Step 1: Buka gambar
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    # Step 2: Translasi caption ke Inggris
+    caption_en = translator_handler.translate(caption)
+
+    # Step 3: Hitung CLIP similarity
+    similarity_score = clip_handler.get_similarity(image, caption_en)
+
+    # Step 4: Tavily cari berita
+    berita = search_related_news(caption)
+
+    # Step 5: Hitung kredibilitas dari metadata Tavily
+    kredibilitas_data = calculate_kredibilitas_score(berita)
+
+    # # Step 6: Groq summarize → penjelasan untuk user
+    # penjelasan = summarize_tavily_results(berita, caption)
+
+    # Step 7: Klasifikasi akhir
+    klasifikasi = classify_content(
+        similarity_score,
+        kredibilitas_data["kredibilitas_score"]
+    )
+
+    return {
+        "similarity_score": round(similarity_score, 4), 
+        "caption_translated": caption_en,
+        "jumlah_artikel": kredibilitas_data["jumlah_artikel"],
+        "rata_rata_score": kredibilitas_data["rata_rata_score"],
+        "kredibilitas_score": kredibilitas_data["kredibilitas_score"],
+        # "penjelasan": penjelasan,
+        "klasifikasi": klasifikasi
+    }

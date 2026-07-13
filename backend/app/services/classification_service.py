@@ -18,7 +18,7 @@ def classify_text_only ( kredibilitas_score: float) -> str:
 def classify_content(similarity_score: float, kredibilitas_score: float) -> str:
     if similarity_score >= SIMILARITY_THRESHOLD_HIGH and kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
         return LABEL_FAKTA
-    elif similarity_score < SIMILARITY_THRESHOLD_LOW and kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
+    elif similarity_score < SIMILARITY_THRESHOLD_HIGH and kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
         return LABEL_MISLEADING
     elif similarity_score >= SIMILARITY_THRESHOLD_HIGH and kredibilitas_score < KREDIBILITAS_THRESHOLD_LOW:
         return LABEL_FABRICATED
