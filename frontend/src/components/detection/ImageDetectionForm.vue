@@ -1,0 +1,135 @@
+<script setup>
+import { ref } from 'vue'
+import FileUploadBox from './FileUploadBox.vue'
+
+// isLoading datang dari parent, karena parent yang beneran ngejalanin await API call
+defineProps({
+  isLoading: { type: Boolean, default: false }
+})
+
+const emit = defineEmits(['submit'])
+const claimText = ref('')
+const imageFile = ref(null)
+
+function onFileSelected(file) {
+  imageFile.value = file
+}
+
+function handleSubmit() {
+  if (!claimText.value.trim() || !imageFile.value) return
+  emit('submit', { text: claimText.value, image: imageFile.value })
+}
+</script>
+
+<template>
+  <div class="form-card">
+    <div class="form-grid">
+      <div class="field">
+        <label class="field-label">📝 Masukkan teks berita atau klaim</label>
+        <textarea
+          v-model="claimText"
+          class="claim-input"
+          rows="6"
+          placeholder="Tulis teks berita atau klaim di sini..."
+        ></textarea>
+      </div>
+      <div class="field">
+        <label class="field-label">🖼 Unggah Gambar Pendukung</label>
+        <FileUploadBox
+          class="file-upload-box"
+          label="Unggah Gambar Pendukung"
+          hint="Seret & lepas gambar di sini (JPG, PNG, maks 5MB)"
+          accept="image/*"
+          @file-selected="onFileSelected"
+        />
+      </div>
+    </div>
+
+    <button
+      class="btn-check"
+      :disabled="!claimText.trim() || !imageFile || isLoading"
+      @click="handleSubmit"
+    >
+      🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
+    </button>
+  </div>
+</template>
+
+<style scoped>
+.form-card {
+  background: white;
+  border-radius: 50px;
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 20px;
+  margin-left: 110px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 720px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  margin-bottom: 8px;
+}
+
+.claim-input {
+  width: 100%;
+  height: calc(100% - 24px);
+  border: 1px solid var(--color-border);
+  border-radius: 30px;
+  background: #F8F9FF;
+  padding: 14px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 110px;
+}
+
+.file-upload-box {
+  background: #F8F9FF;
+  border-radius: 30px;
+}
+
+.claim-input:focus {
+  outline: none;
+  border-color: var(--color-blue);
+  background: #fff;
+}
+
+.btn-check {
+  display: block;
+  margin-left: auto;
+  width: auto;
+  text-align: center;
+  background: #006C49;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.btn-check:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-check:not(:disabled):hover {
+  opacity: 0.92;
+}
+</style>
