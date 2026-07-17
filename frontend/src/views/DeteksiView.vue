@@ -23,7 +23,7 @@ const isLoading = ref(false)
 // Karena backend Flask belum tentu selalu jalan saat development,
 // dummy data ini dipakai sebagai fallback demo sesuai contoh di desain.
 const DUMMY_RESULT = {
-  label: 'Disinformasi',
+  label: 'Fakta',
   accuracy: 92,
   conclusion:
     'Klaim bahwa pemerintah membagikan bantuan tunai melalui tautan WhatsApp tersebut dipastikan palsu. Tautan tersebut merupakan upaya phishing yang dirancang mencuri data pribadi. Situs resmi pemerintah terkait tidak pernah mengeluarkan pesan berantai semacam ini.',

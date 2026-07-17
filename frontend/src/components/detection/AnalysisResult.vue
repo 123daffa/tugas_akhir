@@ -2,7 +2,7 @@
 // Kartu "Hasil Analisis": menampilkan label klasifikasi, kesimpulan dari LLM,
 // dan sumber rujukan yang ditemukan oleh Tavily search
 defineProps({
-  label: { type: String, default: 'Disinformasi' },    // fakta | disinformasi | misleading | fabricated
+  label: { type: String, default: '' },    // fakta | disinformasi | misleading | fabricated
   conclusion: { type: String, required: true },
   source: {
     type: Object,
@@ -12,10 +12,10 @@ defineProps({
 
 // Mapping label -> warna badge, biar gampang extend kalau ada kategori baru
 const labelStyleMap = {
-  Fakta: { bg: 'var(--color-green-bg)', color: 'var(--color-green)', icon: '✓' },
-  Disinformasi: { bg: 'var(--color-red-bg)', color: 'var(--color-red)', icon: '⚠' },
-  Misleading: { bg: '#fff7e6', color: '#d97706', icon: '⚠' },
-  Fabrikasi: { bg: 'var(--color-red-bg)', color: 'var(--color-red)', icon: '⚠' }
+  'Fakta': { bg: '#20d48a', color: 'white', icon: '✓' },
+  'False Content': { bg: '#ff4d4d', color: 'white', icon: '⚠' },
+  'Misleading Content': { bg: '#ffcc00', color: 'white', icon: '⏱' },
+  'Fabricated Content': { bg: '#808080', color: 'white', icon: '✂' }
 }
 </script>
 
@@ -26,11 +26,10 @@ const labelStyleMap = {
       <span
         class="badge"
         :style="{
-          background: labelStyleMap[label]?.bg || 'var(--color-red-bg)',
-          color: labelStyleMap[label]?.color || 'var(--color-red)'
-        }"
-      >
-        {{ labelStyleMap[label]?.icon || '⚠' }} {{ label }}
+          background: labelStyleMap[label]?.bg,
+          color: labelStyleMap[label]?.color
+        }">
+        {{ labelStyleMap[label]?.icon}} {{ label }}
       </span>
     </div>
 
@@ -69,7 +68,7 @@ const labelStyleMap = {
 
 .result-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
 }
 
@@ -90,7 +89,7 @@ const labelStyleMap = {
 }
 
 .section-title {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-navy);
   display: flex;
@@ -100,22 +99,23 @@ const labelStyleMap = {
 }
 
 .conclusion-text {
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--color-text-muted);
   margin: 0;
 }
 
 .source-chip {
+  width: 100%;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--color-blue-bg);
-  color: var(--color-blue);
-  font-size: 12px;
+  background: #E5EEFF;
+  color: black;
+  font-size: 16px;
   font-weight: 600;
   padding: 8px 14px;
-  border-radius: var(--radius-md);
+  border-radius: 20px;
 }
 
 .source-icon {

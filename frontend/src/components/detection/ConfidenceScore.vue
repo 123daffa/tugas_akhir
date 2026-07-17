@@ -1,5 +1,7 @@
 <script setup>
-defineProps({
+import {ref, watch, onMounted} from 'vue';
+
+ const props = defineProps({
   accuracy: { type: Number, required: true },        // contoh: 92
   metrics: {
     type: Array,
@@ -9,21 +11,60 @@ defineProps({
     ]
   }
 })
+
+// Angka yang BENERAN ditampilkan di layar -- mulai dari 0, nanti di-animasikan
+// naik pelan-pelan sampai menyentuh nilai `accuracy` yang asli.
+const displayedAccuracy = ref(0)
+ 
+function animateCountUp(target) {
+  const duration = 1200 // total durasi animasi dalam milidetik (1.2 detik)
+  const startTime = performance.now()
+  const startValue = displayedAccuracy.value
+ 
+  function tick(now) {
+    const elapsed = now - startTime
+    const progress = Math.min(elapsed / duration, 1) // 0 -> 1, gak boleh lebih dari 1
+ 
+    // Easing "ease-out": animasi cepat di awal, melambat di akhir -- kerasa lebih natural
+    // daripada kecepatan konstan (linear). Rumus umum: 1 - (1-progress)^3
+    const eased = 1 - Math.pow(1 - progress, 3)
+ 
+    displayedAccuracy.value = Math.round(startValue + (target - startValue) * eased)
+ 
+    if (progress < 1) {
+      requestAnimationFrame(tick) // lanjut ke frame berikutnya kalau belum selesai
+    } else {
+      displayedAccuracy.value = target // pastikan berhenti PERSIS di angka final, gak kelebihan/kekurangan
+    }
+  }
+ 
+  requestAnimationFrame(tick)
+}
+ 
+// Animasi jalan pas komponen pertama kali muncul di layar...
+onMounted(() => {
+  animateCountUp(props.accuracy)
+})
+ 
+// ...DAN setiap kali prop accuracy berubah (misal user analisis klaim baru,
+// hasil baru masuk, animasinya jalan ulang dari angka lama ke angka baru)
+watch(() => props.accuracy, (newValue) => {
+  animateCountUp(newValue)
+})
 </script>
 
 <template>
   <div class="confidence-card">
     <h3 class="title">Similarity Score</h3>
-
         <!-- Wrapper ini yang nge-center-in lingkaran secara horizontal di dalam card -->
     <div class="score">
       <div class="score-circle">
-        <span class="score-number">{{ accuracy }}%</span>
-        <span class="score-label">Akurasi</span>
+        <span class="score-number">{{ displayedAccuracy }}%</span>
+        <span class="score-label">Similarity</span>
       </div>
     </div>
 
-    <ul class="metric-list">
+    <!-- <ul class="metric-list">
       <li v-for="metric in metrics" :key="metric.label" class="metric-item">
         <span class="metric-label">
           <span class="metric-dot" :class="`metric-dot--${metric.color}`"></span>
@@ -31,7 +72,7 @@ defineProps({
         </span>
         <span class="metric-value">{{ metric.value }}%</span>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 

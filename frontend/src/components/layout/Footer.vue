@@ -1,5 +1,4 @@
 <script setup>
-const links = ['Kebijakan Privasi', 'Syarat & Ketentuan', 'Kontak', 'Bantuan']
 </script>
 
 <template>
@@ -7,11 +6,8 @@ const links = ['Kebijakan Privasi', 'Syarat & Ketentuan', 'Kontak', 'Bantuan']
     <div class="footer-inner">
       <div class="footer-brand">
         <div class="footer-title">FactCheck.ID</div>
-        <div class="footer-sub">© 2024 FactCheck.ID. Teknologi AI untuk Kebenaran Informasi.</div>
+        <div class="footer-sub">© 2026 FactCheck.ID. Teknologi AI untuk Kebenaran Informasi.</div>
       </div>
-      <nav class="footer-links">
-        <a v-for="link in links" :key="link" href="#">{{ link }}</a>
-      </nav>
     </div>
   </footer>
 </template>
@@ -20,11 +16,11 @@ const links = ['Kebijakan Privasi', 'Syarat & Ketentuan', 'Kontak', 'Bantuan']
 .footer {
   border-top: 1px solid var(--color-border);
   background: var(--color-surface);
+  padding: 0px 128px;
 }
 
 .footer-inner {
   max-width: 1200px;
-  margin: 0 auto;
   padding: 24px;
   display: flex;
   align-items: center;
@@ -33,29 +29,19 @@ const links = ['Kebijakan Privasi', 'Syarat & Ketentuan', 'Kontak', 'Bantuan']
 }
 
 .footer-brand {
-  margin-right: 200px;
+  gap: 200px;
 }
 
 .footer-title {
   font-weight: 700;
-  color: var(--color-navy);
+  color: black;
   font-size: 15px;
+  margin-right: 100px;
 }
 
 .footer-sub {
   font-size: 12px;
-  color: var(--color-text-muted);
+  color: black;
   margin-top: 2px;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px;
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.footer-links a:hover {
-  color: var(--color-navy);
 }
 </style>

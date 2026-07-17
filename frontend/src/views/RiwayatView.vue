@@ -1,42 +1,178 @@
+<script setup>
+import { ref, computed } from 'vue'
+import FilterTabs from '../components/riwayat/FilterTabs.vue'
+import HistoryCard from '../components/riwayat/HistoryCard.vue'
+import PaginationBar from '../components/riwayat/PaginationBar.vue'
+
+const searchQuery = ref('')
+const activeFilter = ref('Semua')
+const currentPage = ref(1)
+
+// Data dummy -- nanti diganti dengan hasil fetch dari backend Flask,
+// misalnya GET /api/history?page=1&category=Fakta&q=...
+const historyItems = ref([
+  {
+    id: 1,
+    image: '',
+    category: 'Fakta',
+    date: '10 Okt 2024',
+    type: 'Teks',
+    title: 'Pernyataan Resmi Pemerintah Terkait Bantuan Sosial Tahap Baru',
+    verified: true
+  },
+  {
+    id: 2,
+    image: '',
+    category: 'False Content',
+    date: '12 Okt 2024',
+    type: 'Gambar',
+    title: 'Klaim Vaksin Generasi Baru Mengandung Cip Pelacak',
+    verified: true
+  },
+  {
+    id: 3,
+    image: '',
+    category: 'Misleading Content',
+    date: '08 Okt 2024',
+    type: 'Video',
+    title: 'Video Editan Pidato Calon Pemimpin Daerah Disebarkan Tanpa Konteks',
+    verified: true
+  },
+  {
+    id: 4,
+    image: '',
+    category: 'Fabricated Content',
+    date: '08 Okt 2024',
+    type: 'Video',
+    title: 'Video Editan Pidato Calon Pemimpin Daerah Versi Kedua yang Beredar',
+    verified: true
+  }
+])
+
+// Filter berdasarkan kategori aktif + pencarian judul, dihitung ulang otomatis
+// tiap kali searchQuery atau activeFilter berubah (computed = reaktif)
+const filteredItems = computed(() => {
+  return historyItems.value.filter((item) => {
+    const matchCategory = activeFilter.value === 'Semua' || item.category === activeFilter.value
+    const matchSearch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return matchCategory && matchSearch
+  })
+})
+
+// Dummy total halaman -- nanti diganti nilai dari response backend (misal data.totalPages)
+const totalPages = ref(5)
+</script>
+
 <template>
-    
+  <div class="riwayat-page">
+    <header class="page-header">
+      <div class="header-text">
+        <h1>Riwayat Deteksi</h1>
+        <p>Pantau jejak penelusuran fakta dan verifikasi informasi Anda.</p>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Cari riwayat (judul, kata kunci)..."
+        />
+      </div>
+    </header>
+
+    <FilterTabs v-model="activeFilter" />
+
+    <div v-if="filteredItems.length" class="history-grid">
+      <HistoryCard
+        v-for="item in filteredItems"
+        :key="item.id"
+        :image="item.image"
+        :category="item.category"
+        :date="item.date"
+        :type="item.type"
+        :title="item.title"
+        :verified="item.verified"
+      />
+    </div>
+
+    <!-- Kondisi kosong: ditampilkan kalau filter/pencarian gak menemukan hasil apapun -->
+    <div v-else class="empty-state">
+      <p>Tidak ada riwayat yang cocok dengan pencarian atau filter ini.</p>
+    </div>
+
+    <PaginationBar v-model:current-page="currentPage" :total-pages="totalPages" />
+  </div>
 </template>
 
-<script>
-// import { useAnalisisStore } from '../stores/analisis'
-// import TabInput    from '../components/deteksi/TabInput.vue'
-// import InputTeks   from '../components/deteksi/InputTeks.vue'
-// import InputGambar from '../components/deteksi/InputGambar.vue'
-// import InputVideo  from '../components/deteksi/InputVideo.vue'
-// import HasilLengkap from '../components/hasil/HasilLengkap.vue'
+<style scoped>
+.riwayat-page {
+  width: 100%;
+}
 
-// export default {
-//   name: 'DeteksiView',
-//   components: {
-//     TabInput, InputTeks, InputGambar,
-//     InputVideo, HasilLengkap
-//   },
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  /* justify-content: space-between; */
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
 
-//   data() {
-//     return {
-//       activeTab: 'teks',
-//       teks     : '',
-//       file     : null
-//     }
-//   },
+.header-text h1 {
+  font-size: 50px;
+  font-weight: 700;
+  color: black;
+  margin-top: 30px;
+  margin-left: 120px;
+}
 
-//   setup() {
-//     return { store: useAnalisisStore() }
-//   },
+.header-text p {
+  font-size: 15px;
+  color: black;
+  margin-left: 120px;
+}
 
-//   methods: {
-//     handleFile(file) {
-//       this.file = file
-//     },
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 50px;       
+  padding: 10px 16px;
+  max-width: 320px;    
+  width: 100%;
+  margin-left: auto;
+  margin-right: 90px;
+  margin-top: 60px;
+}
 
-//     async jalankanAnalisis() {
-//       await this.store.analisis(this.teks, this.file)
-//     }
-//   }
-// }
-</script>
+.search-icon {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;               
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+  margin-left: 120px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+</style>

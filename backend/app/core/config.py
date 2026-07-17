@@ -7,7 +7,6 @@ load_dotenv()  # baca file .env
 class Settings:
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
     CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
-    INDOBERT_MODEL_NAME = "indobenchmark/indobert-base-p1"
     TRANSLATOR_MODEL_NAME = "Helsinki-NLP/opus-mt-id-en"
 
     TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
