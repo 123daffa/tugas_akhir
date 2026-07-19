@@ -25,7 +25,7 @@ function handleSubmit() {
       placeholder="Masukkan teks berita atau klaim di sini untuk dianalisis..."
     ></textarea>
 
-    <div class="counter">{{ claimText.length }} / 5000 karakter</div>
+    <div class="counter">{{ claimText.length }} / 400 karakter</div>
     <button class="btn-check" :disabled="!claimText.trim() || isLoading" @click="handleSubmit">
       🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
     </button>

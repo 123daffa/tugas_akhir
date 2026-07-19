@@ -49,7 +49,7 @@ function openPicker() {
       class="hidden-input"
       @change="onInputChange"
     />
-    <div class="upload-icon">⬆</div>
+    <div class="upload-icon"><img src="../../assets/upload.svg" alt="upload"></div>
     <div class="upload-label">{{ fileName || label }}</div>
     <div class="upload-hint">{{ fileName ? 'Klik untuk ganti file' : hint }}</div>
   </div>
@@ -60,7 +60,7 @@ function openPicker() {
   border: 1.5px dashed var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-navy-light);
-  padding: 24px 16px;
+  padding: 40px 16px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -82,9 +82,20 @@ function openPicker() {
 }
 
 .upload-icon {
-  font-size: 20px;
-  color: var(--color-text-muted);
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 10px;
+  border-radius: 50%;
+  background: rgba(32, 212, 138, 0.12);
+}
+
+.upload-icon img {
+  width: 30px;
+  height: 30px;
+  opacity: 1;
 }
 
 .upload-label {

@@ -4,6 +4,14 @@
 # from app.services.search_service import search_related_news
 # from app.services.groq_service import get_kredibilitas_score, classify_content
 
+# def ensure_url(url: str) -> str:
+#     """Pastikan URL selalu punya prefix https://"""
+#     if not url:
+#         return '#'
+#     if not url.startswith(('http://', 'https://')):
+#         return f'https://{url}'
+#     return url
+
 # async def run_video_pipeline(video_bytes: bytes, caption: str) -> dict:
 #     # Step 1: Ekstrak frame dari video (langkah TAMBAHAN dibanding image pipeline)
 #     frames = extract_keyframes(video_bytes)
@@ -25,5 +33,5 @@
 #         "similarity_score": similarity_score,
 #         "kredibilitas_score": kredibilitas_score,
 #         "klasifikasi": hasil,
-#         "jumlah_frame_dianalisis": len(frames)
+#         "jumlah_frame_dianalisis": len(frames),
 #     }

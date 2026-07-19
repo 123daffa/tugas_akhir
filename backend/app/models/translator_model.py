@@ -22,6 +22,7 @@ class TranslatorHandler:
 
         translated = self.model.generate(**inputs)
         result = self.tokenizer.decode(translated[0], skip_special_tokens=True)
+        print(f"[INFO] Hasil translate indo => eng: '{result}'")
         return result
     
 # Singleton instance

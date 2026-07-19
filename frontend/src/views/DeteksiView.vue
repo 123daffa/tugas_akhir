@@ -6,50 +6,79 @@ import ImageDetectionForm from '../components/detection/ImageDetectionForm.vue'
 import VideoDetectionForm from '../components/detection/VideoDetectionForm.vue'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
-// import { detectText, detectImage, detectVideo } from '../services/api.js'
 
-const activeTab = ref('teks') // 'teks' | 'gambar' | 'video'
+// ← GANTI import yang di-comment dengan ini
+import { checkText, checkImage, checkVideo } from '../services/hoaxDetectionService'
 
-// State hasil analisis. null artinya belum ada hasil yang ditampilkan.
+const activeTab = ref('teks')
 const result = ref(null)
 const errorMessage = ref('')
-
-// isLoading ditaruh di sini (parent) karena di sinilah `await` API call
-// yang sebenarnya terjadi. Form component tinggal terima status ini lewat props,
-// jadi tombol "Periksa Fakta" beneran disabled selama request masih berjalan,
-// bukan cuma kedip sesaat kayak sebelumnya.
 const isLoading = ref(false)
 
-// Karena backend Flask belum tentu selalu jalan saat development,
-// dummy data ini dipakai sebagai fallback demo sesuai contoh di desain.
-const DUMMY_RESULT = {
-  label: 'Fakta',
-  accuracy: 92,
-  conclusion:
-    'Klaim bahwa pemerintah membagikan bantuan tunai melalui tautan WhatsApp tersebut dipastikan palsu. Tautan tersebut merupakan upaya phishing yang dirancang mencuri data pribadi. Situs resmi pemerintah terkait tidak pernah mengeluarkan pesan berantai semacam ini.',
-  source: {
-    title: 'Klarifikasi Resmi Kementerian Kominfo',
-    url: 'https://kominfo.go.id'
-  },
-  metrics: [
-    { label: 'Manipulasi Konteks', value: 85, color: 'red' },
-    { label: 'Bahasa Emosional', value: 78, color: 'orange' }
+// Fungsi untuk mapping response backend ke format yang dipakai komponen
+function mapResult(data, type) {
+  // Backend mengembalikan klasifikasi: FAKTA/MISLEADING/FABRICATED/FALSE/TIDAK PASTI
+  // Frontend pakai: label, accuracy, conclusion, source, metrics
+  
+  const labelMap = {
+  'FAKTA': 'Fakta',
+  'MISLEADING': 'Misleading Content',
+  'FABRICATED': 'Fabricated Content',
+  'FALSE': 'False Content'
+}
+
+  // // Konversi kredibilitas_score (0.0-1.0) ke persentase (0-100)
+  // const accuracy = Math.round(data.kredibilitas_score * 100)
+
+  // Metrics untuk ConfidenceScore component
+  const metrics = [
+    {
+      label: 'Kredibilitas Sumber',
+      value: Math.round(data.kredibilitas_score * 100),
+      color: data.kredibilitas_score >= 0.7 ? 'green' : data.kredibilitas_score >= 0.4 ? 'orange' : 'red'
+    }
   ]
+
+  // Tambah similarity score kalau ada (image/video pipeline)
+  if (data.similarity_score !== undefined) {
+    metrics.push({
+      label: 'Konsistensi Visual-Teks',
+      value: Math.round(data.similarity_score * 100),
+      color: data.similarity_score >= 0.7 ? 'green' : data.similarity_score >= 0.5 ? 'orange' : 'red'
+    })
+  }
+
+  return {
+    label: labelMap[data.klasifikasi] || data.klasifikasi,
+    // accuracy: data.rata_rata_score,
+    conclusion: data.penjelasan,
+    articles: data.articles || [],
+    jumlah_artikel: data.jumlah_artikel || 0,        
+    kredibilitas_score: data.kredibilitas_score || 0,      
+    metrics,
+    // Simpan raw data kalau butuh debug
+    raw: data
+  }
 }
 
 async function handleTextSubmit(text) {
   errorMessage.value = ''
   isLoading.value = true
+  result.value = null
+
   try {
-    const { data } = await detectText(text)
-    result.value = data
+    const response = await checkText(text)
+
+    if (response.success) {
+      result.value = mapResult(response.data, 'text')
+    } else {
+      errorMessage.value = response.error
+    }
+
   } catch (err) {
-    // Fallback ke dummy data kalau backend belum tersedia, biar UI tetap bisa didemokan
-    console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-    result.value = DUMMY_RESULT
+    errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    console.error(err)
   } finally {
-    // Baris ini jalan SETELAH await di atas beneran selesai (berhasil atau gagal),
-    // jadi tombol beneran ke-disable sepanjang request berlangsung.
     isLoading.value = false
   }
 }
@@ -57,12 +86,20 @@ async function handleTextSubmit(text) {
 async function handleImageSubmit({ text, image }) {
   errorMessage.value = ''
   isLoading.value = true
+  result.value = null
+
   try {
-    const { data } = await detectImage(text, image)
-    result.value = data
+    const response = await checkImage(image, text)
+
+    if (response.success) {
+      result.value = mapResult(response.data, 'image')
+    } else {
+      errorMessage.value = response.error
+    }
+
   } catch (err) {
-    console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-    result.value = DUMMY_RESULT
+    errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    console.error(err)
   } finally {
     isLoading.value = false
   }
@@ -71,12 +108,20 @@ async function handleImageSubmit({ text, image }) {
 async function handleVideoSubmit({ text, video }) {
   errorMessage.value = ''
   isLoading.value = true
+  result.value = null
+
   try {
-    const { data } = await detectVideo(text, video)
-    result.value = data
+    const response = await checkVideo(video, text)
+
+    if (response.success) {
+      result.value = mapResult(response.data, 'video')
+    } else {
+      errorMessage.value = response.error
+    }
+
   } catch (err) {
-    console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-    result.value = DUMMY_RESULT
+    errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    console.error(err)
   } finally {
     isLoading.value = false
   }
@@ -110,14 +155,16 @@ async function handleVideoSubmit({ text, video }) {
           v-if="result"
           :label="result.label"
           :conclusion="result.conclusion"
-          :source="result.source"
+          :articles="result.articles"
+          :jumlah_artikel="result.jumlah_artikel"
+          :kredibilitas_score="result.kredibilitas_score"
         />
       </div>
 
       <!-- Kolom kanan: kartu tingkat keyakinan AI, hanya tampil kalau sudah ada hasil -->
-      <div class="right-col" v-if="result">
-        <ConfidenceScore :accuracy="result.accuracy" :metrics="result.metrics" />
-      </div>
+        <!-- <div class="right-col" v-if="result">
+          <ConfidenceScore :accuracy="result.accuracy" :metrics="result.metrics" />
+        </div> -->
     </div>
   </div>
 </template>

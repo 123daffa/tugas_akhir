@@ -2,14 +2,13 @@
 import {ref, watch, onMounted} from 'vue';
 
  const props = defineProps({
-  accuracy: { type: Number, required: true },        // contoh: 92
+  label: { type: String, default: '' },
+  similarity_score: { type: Number, required: true },        // contoh: 92
   metrics: {
     type: Array,
-    default: () => [
-      // { label: 'Manipulasi Konteks', value: 85, color: 'red' },
-      // { label: 'Bahasa Emosional', value: 78, color: 'orange' }
-    ]
-  }
+    default: () => []
+  },
+  caption_translated: {type: String, required: true}
 })
 
 // Angka yang BENERAN ditampilkan di layar -- mulai dari 0, nanti di-animasikan
@@ -89,9 +88,9 @@ watch(() => props.accuracy, (newValue) => {
 
 .title {
   margin: 0 0 16px;
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 700;
-  text-align: left;
+  text-align: center;
 }
 
 .score {
@@ -109,6 +108,7 @@ watch(() => props.accuracy, (newValue) => {
   height: 150px;
   border-radius: 50%;
   background: rgba(253, 251, 251, 0.9); /* biru pucat, alpha 0.9 = ketajaman 90% */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .score-number {

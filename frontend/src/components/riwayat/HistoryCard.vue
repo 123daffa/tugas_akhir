@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import defaultThumbnail from '../../assets/default-thumbnail.jpg'
+import defaultThumbnail from '../../assets/default-thumbnail-home.jpeg'
 
 const props = defineProps({
   image: { type: String, default: '' },

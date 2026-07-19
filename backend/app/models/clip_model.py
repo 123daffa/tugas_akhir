@@ -42,6 +42,8 @@ class CLIPHandler:
         # similarity = dot_product.item()
         # print("Similarity:", similarity)
 
+        print(f"[INFO] Similarity antara caption dan content: '{similarity}'")
+
         return similarity
 
 

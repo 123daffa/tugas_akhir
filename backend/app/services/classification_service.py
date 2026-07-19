@@ -1,6 +1,5 @@
 from app.core.constants import (
     SIMILARITY_THRESHOLD_HIGH,
-    SIMILARITY_THRESHOLD_LOW,
     KREDIBILITAS_THRESHOLD_HIGH,
     KREDIBILITAS_THRESHOLD_LOW,
     LABEL_FAKTA,
@@ -20,7 +19,7 @@ def classify_content(similarity_score: float, kredibilitas_score: float) -> str:
         return LABEL_FAKTA
     elif similarity_score < SIMILARITY_THRESHOLD_HIGH and kredibilitas_score >= KREDIBILITAS_THRESHOLD_HIGH:
         return LABEL_MISLEADING
-    elif similarity_score >= SIMILARITY_THRESHOLD_HIGH and kredibilitas_score < KREDIBILITAS_THRESHOLD_LOW:
+    elif similarity_score >= SIMILARITY_THRESHOLD_HIGH and kredibilitas_score <= KREDIBILITAS_THRESHOLD_HIGH:
         return LABEL_FABRICATED
     else:
         return LABEL_FALSE

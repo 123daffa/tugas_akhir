@@ -30,7 +30,7 @@ function handleSubmit() {
           v-model="claimText"
           class="claim-input"
           rows="6"
-          placeholder="Tulis teks berita atau klaim di sini..."
+          placeholder="Ketik atau tempel klaim di sini..."
         ></textarea>
       </div>
       <div class="field">
@@ -94,7 +94,7 @@ function handleSubmit() {
   background: #F8F9FF;
   padding: 14px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   resize: vertical;
   min-height: 110px;
 }
