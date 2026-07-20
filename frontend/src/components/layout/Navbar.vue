@@ -1,5 +1,17 @@
 <script setup>
-import { RouterLink} from 'vue-router'
+import { ref } from 'vue'
+import { RouterLink, useRouter} from 'vue-router'
+import { useAuth } from '../../composables/useAuth'
+
+const menuOpen = ref(false)
+
+const router = useRouter()
+const { logout } = useAuth()
+
+function handleLogout() {
+  logout()
+  router.push('/login')
+}
 </script>
 
 <template>
@@ -14,9 +26,10 @@ import { RouterLink} from 'vue-router'
           <RouterLink to="/deteksi">Deteksi</RouterLink>
           <RouterLink to="/riwayat">Riwayat</RouterLink>
           <RouterLink to="/tentang">Tentang</RouterLink>
-          <RouterLink to="/deteksi" class="btn-mulai">
-            Mulai Deteksi
-          </RouterLink>
+          <RouterLink to="/profile">Profile</RouterLink>
+          <button class="btn-mulai" @click="handleLogout">
+            Log Out
+          </button>
         </nav>
     </header>
 
@@ -99,6 +112,9 @@ import { RouterLink} from 'vue-router'
   margin-left: 2rem;
   margin-right: 20px;
   transition  : background 0.2s, transform 0.1s !important;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .btn-mulai:hover {

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref,computed } from 'vue'
 import FileUploadBox from './FileUploadBox.vue'
 
 // isLoading datang dari parent, karena parent yang beneran ngejalanin await API call
@@ -10,6 +10,17 @@ defineProps({
 const emit = defineEmits(['submit'])
 const claimText = ref('')
 const videoFile = ref(null)
+
+const wordCount = computed(() => {
+  return claimText.value.trim().split(/\s+/).filter(Boolean).length
+})
+ 
+const MIN_WORDS = 10
+const isTextValid = computed(() => wordCount.value >= MIN_WORDS)
+const showWordCountError = computed(() => claimText.value.trim().length > 0 && !isTextValid.value)
+ 
+// Form valid kalau: teks udah cukup kata DAN gambar udah dipilih
+const isFormValid = computed(() => isTextValid.value && !!videoFile.value)
 
 function onFileSelected(file) {
   videoFile.value = file
@@ -29,9 +40,13 @@ function handleSubmit() {
         <textarea
           v-model="claimText"
           class="claim-input"
+          :class="{ 'claim-input--error': showWordCountError }"
           rows="6"
           placeholder="Ketik atau tempel klaim di sini..."
         ></textarea>
+        <p v-if="showWordCountError" class="field-error">
+          Minimal {{ MIN_WORDS }} kata diperlukan (saat ini baru {{ wordCount }} kata).
+        </p>
       </div>
       <div class="field">
         <label class="field-label">🎬 Unggah Video</label>
@@ -47,7 +62,7 @@ function handleSubmit() {
 
     <button
       class="btn-check"
-      :disabled="!claimText.trim() || !videoFile || isLoading"
+      :disabled="!isFormValid || isLoading"
       @click="handleSubmit"
     >
       🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
@@ -108,6 +123,16 @@ function handleSubmit() {
   outline: none;
   border-color: var(--color-blue);
   background: #fff;
+}
+
+.claim-input--error {
+  outline: 1.5px solid var(--color-red);
+}
+ 
+.field-error {
+  font-size: 12px;
+  color: var(--color-red);
+  margin: 6px 0 0;
 }
 
 .btn-check {

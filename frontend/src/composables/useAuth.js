@@ -10,8 +10,12 @@ import { ref } from 'vue'
 // tersimpan dari sesi sebelumnya, anggap user masih login (persist antar refresh halaman).
 const isAuthenticated = ref(!!localStorage.getItem('factcheck_token'))
 
-function login(token) {
-  localStorage.setItem('factcheck_token', token)
+function login(token, remember = false) {
+  if (remember) {
+    localStorage.setItem('factcheck_token', token)    // permanen, tetap login walau browser ditutup
+  } else {
+    sessionStorage.setItem('factcheck_token', token)  // hilang begitu tab/browser ditutup
+  }
   isAuthenticated.value = true
 }
 

@@ -1,7 +1,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
 
+
+// const router = useRouter()
+// const { login } = useAuth()
 const form = ref({
   email: '',
   password: ''
@@ -19,9 +23,14 @@ async function handleLogin() {
   errorMessage.value = ''
   isSubmitting.value = true
   try {
-    // TODO: sambungkan ke endpoint backend, misal:
-    // await api.post('/auth/login', form.value)
-    console.log('Login payload:', form.value)
+    // TODO: ganti bagian ini dengan panggilan API asli, misal:
+    // const { data } = await api.post('/auth/login', form.value)
+    // login(data.token, rememberMe.value)
+    login('dummy-token-sementara', rememberMe.value)  // <-- setelah backend beneran, ganti token dummy ini
+ 
+    // Setelah login() dipanggil, isAuthenticated jadi true,
+    // baru aman untuk pindah ke halaman yang dilindungi
+    router.push('/')
   } catch (err) {
     errorMessage.value = 'Email atau kata sandi salah.'
   } finally {
@@ -66,7 +75,7 @@ async function handleLogin() {
                 autocomplete="current-password"
               />
               <button type="button" class="toggle-visibility" @click="showPassword = !showPassword">
-                {{ showPassword ? '🙈' : '👁' }}
+                {{ showPassword ? '👀' : '👁' }}
               </button>
             </div>
           </div>
@@ -76,7 +85,7 @@ async function handleLogin() {
               <input v-model="rememberMe" type="checkbox" />
               <span>Ingat saya</span>
             </label>
-            <a href="#" class="forgot-link">Lupa Password?</a>
+            <RouterLink to="/lupa_password" class="forgot-link">Lupa Password?</RouterLink>
           </div>
 
           <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
@@ -117,20 +126,21 @@ async function handleLogin() {
 }
 
 .auth-brand h1 {
-  font-size: 26px;
+  font-size: 50px;
   font-weight: 700;
-  color: #0f6b52;
+  color: #006C49;
   margin: 0 0 8px;
 }
 
 .auth-brand p {
-  font-size: 13px;
+  font-size: 16px;
   color: #666;
   margin: 0;
+  white-space: nowrap;
 }
 
 .auth-card {
-  background: #ffffff;
+  background: #ffffff ;
   border: 1px solid #e6eaf5;
   border-radius: 20px;
   padding: 28px;
@@ -139,9 +149,9 @@ async function handleLogin() {
 }
 
 .auth-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #111;
+  font-size: 20px;
+  font-weight: 600;
+  color: black;
   margin: 0 0 20px;
 }
 
@@ -156,7 +166,7 @@ async function handleLogin() {
   font-size: 12px;
   font-weight: 600;
   color: #222;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .input-wrapper {
@@ -208,7 +218,32 @@ async function handleLogin() {
 }
 
 .checkbox-row input {
-  accent-color: #20d48a;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+ 
+.checkbox-row input:checked {
+  background: #20d48a;
+  border-color: #20d48a;
+}
+ 
+.checkbox-row input:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .forgot-link {

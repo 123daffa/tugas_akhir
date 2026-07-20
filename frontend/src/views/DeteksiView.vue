@@ -64,64 +64,61 @@ function mapResult(data, type) {
 async function handleTextSubmit(text) {
   errorMessage.value = ''
   isLoading.value = true
-  result.value = null
-
   try {
-    const response = await checkText(text)
-
-    if (response.success) {
-      result.value = mapResult(response.data, 'text')
-    } else {
-      errorMessage.value = response.error
-    }
-
+    const { data } = await detectText(text)
+    result.value = data
   } catch (err) {
-    errorMessage.value = 'Terjadi kesalahan, coba lagi'
-    console.error(err)
+    if (err.response) {
+      // Backend BERHASIL dihubungi, tapi menolak request (misal validasi
+      // gagal: kurang dari 10 kata, dsb). Ini HARUS ditampilkan ke user,
+      // bukan ditutupi diam-diam pakai data dummy.
+      errorMessage.value =
+        err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
+    } else {
+      // Backend gak bisa dihubungi sama sekali (server belum jalan, network putus, dst).
+      // Kondisi ini yang pantas fallback ke dummy data, biar UI tetap bisa didemokan.
+      console.warn('Backend belum tersedia, pakai data contoh:', err.message)
+      result.value = DUMMY_RESULT
+    }
   } finally {
     isLoading.value = false
   }
+  
 }
 
 async function handleImageSubmit({ text, image }) {
   errorMessage.value = ''
   isLoading.value = true
-  result.value = null
-
   try {
-    const response = await checkImage(image, text)
-
-    if (response.success) {
-      result.value = mapResult(response.data, 'image')
-    } else {
-      errorMessage.value = response.error
-    }
-
+    const { data } = await detectImage(text, image)
+    result.value = data
   } catch (err) {
-    errorMessage.value = 'Terjadi kesalahan, coba lagi'
-    console.error(err)
+    if (err.response) {
+      errorMessage.value =
+        err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
+    } else {
+      console.warn('Backend belum tersedia, pakai data contoh:', err.message)
+      result.value = DUMMY_RESULT
+    }
   } finally {
     isLoading.value = false
   }
 }
-
+ 
 async function handleVideoSubmit({ text, video }) {
   errorMessage.value = ''
   isLoading.value = true
-  result.value = null
-
   try {
-    const response = await checkVideo(video, text)
-
-    if (response.success) {
-      result.value = mapResult(response.data, 'video')
-    } else {
-      errorMessage.value = response.error
-    }
-
+    const { data } = await detectVideo(text, video)
+    result.value = data
   } catch (err) {
-    errorMessage.value = 'Terjadi kesalahan, coba lagi'
-    console.error(err)
+    if (err.response) {
+      errorMessage.value =
+        err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
+    } else {
+      console.warn('Backend belum tersedia, pakai data contoh:', err.message)
+      result.value = DUMMY_RESULT
+    }
   } finally {
     isLoading.value = false
   }

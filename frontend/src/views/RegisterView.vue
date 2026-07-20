@@ -178,14 +178,14 @@ async function handleRegister() {
 }
 
 .auth-title {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 700;
   color: #0f6b52;
   margin: 0 0 6px;
 }
 
 .auth-subtitle {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
   line-height: 1.5;
   margin: 0 0 24px;
@@ -266,8 +266,33 @@ async function handleRegister() {
 }
 
 .checkbox-row input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
   margin-top: 2px;
-  accent-color: #20d48a;
+  border: 1.5px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkbox-row input:checked {
+  background: #20d48a;
+  border-color: #20d48a;
+}
+
+.checkbox-row input:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .checkbox-row a {

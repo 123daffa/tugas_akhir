@@ -2,6 +2,8 @@
 import { RouterLink, RouterView } from 'vue-router'
 import Navbar from './components/layout/Navbar.vue'
 import Footer from './components/layout/Footer.vue'
+
+// const route = useRoute()
 </script>
 
 <template>
@@ -18,6 +20,16 @@ import Footer from './components/layout/Footer.vue'
 
   <!-- Footer -->
   <Footer />
+
+  <!-- <div class="app-shell">
+    <NavBar v-if="!route.meta.hideLayout" />
+    <router-view v-if="route.meta.hideLayout" />
+    <main v-else class="app-main">
+      <router-view />
+    </main>
+ 
+    <FooterBar v-if="!route.meta.hideLayout" />
+  </div> -->
 </template>
 
 
