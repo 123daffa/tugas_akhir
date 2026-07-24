@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import DeteksiView from '../views/DeteksiView.vue'
 import TentangView from '../views/HowItWorksView.vue'
 import RiwayatView from '../views/RiwayatView.vue'
+import RiwayatDetailView from '../views/RiwayatDetailView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ForgotPasswordView from '../views/ForgotPasswordView.vue'
@@ -35,6 +36,12 @@ const router = createRouter({
       path: '/riwayat',
       name: 'riwayat',
       component: RiwayatView,
+      // meta: {requiresAuth: true}
+    },
+    {
+      path: '/riwayat/:id',
+      name: 'riwayat_detail',
+      component: RiwayatDetailView,
       // meta: {requiresAuth: true}
     },
     {

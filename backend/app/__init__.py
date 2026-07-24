@@ -1,11 +1,14 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
+from config import Config
 from app.routes.text_routes import text_bp
 from app.routes.image_routes import image_bp
 # from app.routes.video_routes import video_bp
+from extensions import db, jwt, cors
 
 def create_app():
     app = Flask(__name__)
+    # app.config.from_object(Config)
 
     # Konfigurasi ukuran maksimum upload
     # 50MB untuk video, 10MB untuk gambar
@@ -13,6 +16,7 @@ def create_app():
 
     # CORS untuk Vue.js frontend
     CORS(app, origins=["http://localhost:5173"])
+    # CORS(app, origins=["216.198.79.1"])
 
     # Register semua blueprint dengan prefix /api
     app.register_blueprint(text_bp, url_prefix="/api")

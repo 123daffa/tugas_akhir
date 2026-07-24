@@ -14,7 +14,7 @@ def summarize_tavily_results(tavily_results: list, original_text: str) -> str:
         return "Tidak ditemukan artikel berita terkait untuk dianalisis."
 
     articles_text = ""
-    for i, article in enumerate(tavily_results[:5], 1):
+    for i, article in enumerate(tavily_results[:5], 1): # 
         title = article.get("title", "Tanpa judul")
         content = article.get("content", "")[:300]
         articles_text += f"\nArtikel {i}:\nJudul: {title}\nIsi: {content}\n"

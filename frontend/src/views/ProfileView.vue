@@ -565,6 +565,6 @@ function handleLogout() {
 
 .btn-logout:hover {
   background: var(--color-red);
-  color: #fff;
+  color: #0f6b52;
 }
 </style>

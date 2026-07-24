@@ -46,7 +46,7 @@ function handleSubmit() {
 
     <!-- Dibungkus flex-row: counter nempel kiri, tombol nempel kanan -->
     <div class="form-footer">
-      <span class="counter">{{ claimText.length }} / 5000 karakter · {{ wordCount }} kata</span>
+      <span class="counter">{{ claimText.length }} / 400 karakter · {{ wordCount }} kata</span>
       <button class="btn-check" :disabled="!isTextValid || isLoading" @click="handleSubmit">
         🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
       </button>

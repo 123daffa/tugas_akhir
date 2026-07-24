@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import FilterTabs from '../components/riwayat/FilterTabs.vue'
 import HistoryCard from '../components/riwayat/HistoryCard.vue'
 import PaginationBar from '../components/riwayat/PaginationBar.vue'
+import { historyItems } from '../stores/Mockhistory.js'
 
 const searchQuery = ref('')
 const activeFilter = ref('Semua')
@@ -10,49 +11,11 @@ const currentPage = ref(1)
 
 // Data dummy -- nanti diganti dengan hasil fetch dari backend Flask,
 // misalnya GET /api/history?page=1&category=Fakta&q=...
-const historyItems = ref([
-  {
-    id: 1,
-    image: '',
-    category: 'Fakta',
-    date: '10 Okt 2024',
-    type: 'Teks',
-    title: 'Pernyataan Resmi Pemerintah Terkait Bantuan Sosial Tahap Baru',
-    verified: true
-  },
-  {
-    id: 2,
-    image: '',
-    category: 'False Content',
-    date: '12 Okt 2024',
-    type: 'Gambar',
-    title: 'Klaim Vaksin Generasi Baru Mengandung Cip Pelacak',
-    verified: true
-  },
-  {
-    id: 3,
-    image: '',
-    category: 'Misleading Content',
-    date: '08 Okt 2024',
-    type: 'Video',
-    title: 'Video Editan Pidato Calon Pemimpin Daerah Disebarkan Tanpa Konteks',
-    verified: true
-  },
-  {
-    id: 4,
-    image: '',
-    category: 'Fabricated Content',
-    date: '08 Okt 2024',
-    type: 'Video',
-    title: 'Video Editan Pidato Calon Pemimpin Daerah Versi Kedua yang Beredar',
-    verified: true
-  }
-])
 
 // Filter berdasarkan kategori aktif + pencarian judul, dihitung ulang otomatis
 // tiap kali searchQuery atau activeFilter berubah (computed = reaktif)
 const filteredItems = computed(() => {
-  return historyItems.value.filter((item) => {
+  return historyItems.filter((item) => {
     const matchCategory = activeFilter.value === 'Semua' || item.category === activeFilter.value
     const matchSearch = item.title.toLowerCase().includes(searchQuery.value.toLowerCase())
     return matchCategory && matchSearch
@@ -87,6 +50,7 @@ const totalPages = ref(5)
       <HistoryCard
         v-for="item in filteredItems"
         :key="item.id"
+        :id="item.id" 
         :image="item.image"
         :category="item.category"
         :date="item.date"

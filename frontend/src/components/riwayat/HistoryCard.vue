@@ -1,8 +1,10 @@
 <script setup>
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import defaultThumbnail from '../../assets/default-thumbnail-home.jpeg'
 
 const props = defineProps({
+  id: { type: [String, Number], required: true },
   image: { type: String, default: '' },
   category: { type: String, required: true },  // 'Fakta' | 'False Content' | 'Misleading Content' | 'Fabricated Content'
   date: { type: String, required: true },
@@ -57,7 +59,7 @@ const displayImage = computed(() => props.image || defaultThumbnail)
 
       <div class="card-footer">
         <span class="status-dot" :class="{ 'status-dot--verified': verified }"></span>
-        <a href="#" class="detail-link">Lihat Detail →</a>
+        <RouterLink :to="`/riwayat/${id}`" class="detail-link">Lihat Detail →</RouterLink>
       </div>
     </div>
   </div>
