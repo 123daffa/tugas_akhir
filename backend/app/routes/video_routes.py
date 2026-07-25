@@ -1,11 +1,16 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.pipelines.video_pipeline import run_video_pipeline
 from app.schemas.video_schema import VideoCheckResponse
 from app.schemas.common_schema import ErrorResponse
+from app.services.history_service import HistoryService
+from app.services.storage_service import upload_pil_image
+from app.services.frame_extraction_service import extract_keyframes
 
 video_bp = Blueprint("video", __name__)
 
 @video_bp.route("/check/video", methods=["POST"])
+@jwt_required()
 def check_video():
     if "video" not in request.files:
         return jsonify(
@@ -31,6 +36,23 @@ def check_video():
         video_bytes = video_file.read()
         result = run_video_pipeline(video_bytes, caption)
         response = VideoCheckResponse(**result)
+
+        user_id = get_jwt_identity()
+        
+        image_path = None
+        try:
+            first_frame = extract_keyframes(video_bytes, max_frames=1)[0]
+            image_path = upload_pil_image(first_frame, folder="videos")
+        except Exception as e:
+            print(f"[WARNING] gagal ambil/upload frame pertama video: {e}")
+
+        try:
+            HistoryService.save_check_result(
+                user_id, mode="image", result=result, caption=caption, image_path=image_path
+            )
+        except Exception as e:
+            print(f"[WARNING] gagal simpan history (image): {e}")
+                
         return jsonify(response.to_dict()), 200
 
     except Exception as e:

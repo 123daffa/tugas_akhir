@@ -5,4 +5,10 @@ const apiClient = axios.create({
   timeout: 60000,
 })
 
+apiClient.interceptors.request.use((config) => { // api.js perlu ada interceptor yang otomatis nempelin token
+  const token = localStorage.getItem('factcheck_token') || sessionStorage.getItem('factcheck_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
 export default apiClient

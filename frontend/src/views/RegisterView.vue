@@ -1,9 +1,15 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuth } from '../composables/useAuth'
+import apiClient from '../services/api'
 
 // State form -- semua field disimpan di sini, gampang di-collect jadi 1 object
 // pas kirim ke backend nanti (misal POST /api/auth/register)
+
+const router = useRouter()
+const { login } = useAuth()
+
 const form = ref({
   fullName: '',
   email: '',
@@ -38,9 +44,13 @@ async function handleRegister() {
   errorMessage.value = ''
   isSubmitting.value = true
   try {
-    // TODO: sambungkan ke endpoint backend, misal:
-    // await api.post('/auth/register', form.value)
-    console.log('Register payload:', form.value)
+    const { data } = await apiClient.post('/api/auth/register', {
+      fullName: form.value.fullName,
+      email: form.value.email,
+      password: form.value.password
+    })
+    login(data.token, false)
+    router.push('/')
   } catch (err) {
     errorMessage.value = 'Pendaftaran gagal. Silakan coba lagi.'
   } finally {

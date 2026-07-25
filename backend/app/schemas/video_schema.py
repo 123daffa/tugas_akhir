@@ -2,15 +2,6 @@ from dataclasses import dataclass, asdict, field
 from typing import List
 
 @dataclass
-class ArticleItem:
-    title: str
-    url: str
-    score: float
-
-    def to_dict(self):
-        return asdict(self)
-
-@dataclass
 class VideoCheckResponse:
     similarity_score: float
     similarity_per_frame: List[float]

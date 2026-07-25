@@ -1,11 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth'
+import apiClient from '../services/api'
 
 
-// const router = useRouter()
-// const { login } = useAuth()
+const router = useRouter()
+const { login } = useAuth()
 const form = ref({
   email: '',
   password: ''
@@ -23,16 +24,17 @@ async function handleLogin() {
   errorMessage.value = ''
   isSubmitting.value = true
   try {
-    // TODO: ganti bagian ini dengan panggilan API asli, misal:
-    // const { data } = await api.post('/auth/login', form.value)
-    // login(data.token, rememberMe.value)
-    login('dummy-token-sementara', rememberMe.value)  // <-- setelah backend beneran, ganti token dummy ini
- 
-    // Setelah login() dipanggil, isAuthenticated jadi true,
-    // baru aman untuk pindah ke halaman yang dilindungi
+    const { data } = await apiClient.post('/api/auth/login', {
+      email: form.value.email,
+      password: form.value.password
+    })
+
+    login(data.token, rememberMe.value)
     router.push('/')
   } catch (err) {
-    errorMessage.value = 'Email atau kata sandi salah.'
+    // err.response ada kalau backend SEMPAT merespons (401 email/password salah).
+    // Kalau gak ada, berarti backend gak bisa dihubungi sama sekali (server mati, dll).
+    errorMessage.value = err.response?.data?.message || 'Tidak dapat terhubung ke server. Coba lagi nanti.'
   } finally {
     isSubmitting.value = false
   }

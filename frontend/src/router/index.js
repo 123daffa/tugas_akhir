@@ -19,42 +19,43 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: {requiresAuth: true}
     },
     {
       path: '/deteksi',
       name: 'deteksi',
       component: DeteksiView,
-      // meta: {requiresAuth: true}
+      meta: {requiresAuth: true}
     },
     {
       path: '/tentang',
       name: 'tentang',
       component: TentangView,
-      // meta: {requiresAuth: true}
+      meta: {requiresAuth: true}
     },
     {
       path: '/riwayat',
       name: 'riwayat',
       component: RiwayatView,
-      // meta: {requiresAuth: true}
+      meta: {requiresAuth: true}
     },
     {
       path: '/riwayat/:id',
       name: 'riwayat_detail',
       component: RiwayatDetailView,
-      // meta: {requiresAuth: true}
+      meta: {requiresAuth: true}
     },
     {
       path: '/login',
       name: 'login',
       component: LoginView,
-      // meta: { hideLayout: true }
+      meta: { hideLayout: true }
     },
     {
       path: '/register',
       name: 'register',
       component: RegisterView,
-      // meta: { hideLayout: true}
+      meta: { hideLayout: true}
     },
     {
       path: '/lupa_password',
@@ -66,7 +67,6 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-      // meta: { hideLayout: true}
     }
   ],
 })
