@@ -1,15 +1,15 @@
 <script setup>
 import { ref } from 'vue'
 import { RouterLink, useRouter} from 'vue-router'
-import { useAuthStore } from '../../stores/auth'
+import { useAuth } from '../../composables/useAuth'
 
 const menuOpen = ref(false)
 
 const router = useRouter()
-const authStore = useAuthStore()
+const { logout } = useAuth()
 
 function handleLogout() {
-  authStore.logout()
+  logout()
   router.push('/login')
 }
 </script>

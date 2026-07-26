@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import FilterTabs from '../components/riwayat/FilterTabs.vue'
 import HistoryCard from '../components/riwayat/HistoryCard.vue'
 import PaginationBar from '../components/riwayat/PaginationBar.vue'
-// import { historyItems } from '../stores/Mockhistory.js'
+import { historyItems } from '../stores/Mockhistory.js'
 
 const searchQuery = ref('')
 const activeFilter = ref('Semua')

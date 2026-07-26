@@ -7,7 +7,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ForgotPasswordView from '../views/ForgotPasswordView.vue'
 import ProfileView from '../views/ProfileView.vue'
-import { useAuthStore } from '../stores/auth'
+import { useAuth } from '../composables/useAuth'
 
 
 
@@ -42,7 +42,7 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { hideLayout: true }
+      // meta: { hideLayout: true }
     },
     {
       path: '/register',
@@ -67,21 +67,15 @@ const router = createRouter({
 
 // ===== INI BAGIAN PENJAGANYA (route guard) =====
 // SEBELUM halaman tujuan benar-benar dirender.
-router.beforeEach(async (to) => {
+router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
-  
-  if (!authStore.isInitialized) {
-    await authStore.initialize()
-  }
 
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    return '/login'
-  } if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    return '/'
-  } if ((to.path === '/login' || to.path === '/register') && authStore.isLoggedIn) {
-    return '/'
-  } 
-  return true
+    next('/login')
+  } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next('/')
+  } else {
+    next()
+  }
 })
-
 export default router

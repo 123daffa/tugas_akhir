@@ -1,13 +1,14 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuth } from '../composables/useAuth'
+import apiClient from '../services/api'
 
 // State form -- semua field disimpan di sini, gampang di-collect jadi 1 object
 // pas kirim ke backend nanti (misal POST /api/auth/register)
 
 const router = useRouter()
-const authStore = useAuthStore()
+const { login } = useAuth()
 
 const form = ref({
   fullName: '',
@@ -43,10 +44,15 @@ async function handleRegister() {
   errorMessage.value = ''
   isSubmitting.value = true
   try {
-    await authStore.register(form.value.fullName, form.value.email, form.value.password)
+    const { data } = await apiClient.post('/api/auth/register', {
+      fullName: form.value.fullName,
+      email: form.value.email,
+      password: form.value.password
+    })
+    login(data.token, false)
     router.push('/')
   } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Pendaftaran gagal. Silakan coba lagi.'
+    errorMessage.value = 'Pendaftaran gagal. Silakan coba lagi.'
   } finally {
     isSubmitting.value = false
   }

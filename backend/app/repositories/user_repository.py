@@ -1,5 +1,7 @@
 from extensions import db
+from sqlalchemy import func
 from app.models import User
+from app.models import DetectionHistory
 
 
 class UserRepository:
@@ -36,6 +38,24 @@ class UserRepository:
     @staticmethod
     def count():
         return User.query.count()
+
+    @staticmethod
+    def count_for_user(user_id):
+        return DetectionHistory.query.filter_by(user_id=user_id).count()
+
+    @staticmethod
+    def category_breakdown():
+        return dict(
+            db.session.query(DetectionHistory.category, func.count(DetectionHistory.id))
+            .group_by(DetectionHistory.category).all()
+        )
+
+    @staticmethod
+    def mode_breakdown():
+        return dict(
+            db.session.query(DetectionHistory.mode, func.count(DetectionHistory.id))
+            .group_by(DetectionHistory.mode).all()
+        )
 
     @staticmethod
     def create(full_name, email, password):

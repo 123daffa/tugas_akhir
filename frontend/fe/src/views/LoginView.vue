@@ -1,11 +1,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuth } from '../composables/useAuth'
+import apiClient from '../services/api'
 
 
 const router = useRouter()
-const authStore = useAuthStore()
+const { login } = useAuth()
 const form = ref({
   email: '',
   password: ''
@@ -22,10 +23,17 @@ async function handleLogin() {
   if (!isFormValid.value) return
   errorMessage.value = ''
   isSubmitting.value = true
-   try {
-    await authStore.login(form.value.email, form.value.password)
+  try {
+    const { data } = await apiClient.post('/api/auth/login', {
+      email: form.value.email,
+      password: form.value.password
+    })
+
+    login(data.token, rememberMe.value)
     router.push('/')
   } catch (err) {
+    // err.response ada kalau backend SEMPAT merespons (401 email/password salah).
+    // Kalau gak ada, berarti backend gak bisa dihubungi sama sekali (server mati, dll).
     errorMessage.value = err.response?.data?.message || 'Tidak dapat terhubung ke server. Coba lagi nanti.'
   } finally {
     isSubmitting.value = false

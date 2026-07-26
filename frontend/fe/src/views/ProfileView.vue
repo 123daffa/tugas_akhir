@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuth } from '../composables/useAuth'
 
 const router = useRouter()
-const authStore = useAuthStore()
+const { logout } = useAuth()
 
 // Data user -- nanti diganti hasil fetch dari backend, misal GET /api/user/me
 const user = ref({
@@ -119,7 +119,7 @@ async function savePassword() {
 }
 
 function handleLogout() {
-  authStore.logout()
+  logout()
   router.push('/login')
 }
 </script>
