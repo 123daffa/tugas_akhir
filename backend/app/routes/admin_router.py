@@ -18,6 +18,14 @@ def list_users():
     return jsonify(result), 200
 
 
+@admin_bp.route('/admin/users', methods=['POST'])
+@jwt_required()
+@admin_required
+def create_user():
+    data = request.get_json(silent=True) or {}
+    return jsonify(AdminService.create_user(data)), 201
+
+
 @admin_bp.route('/admin/users/<int:user_id>', methods=['GET'])
 @jwt_required()
 @admin_required

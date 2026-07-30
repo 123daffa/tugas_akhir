@@ -36,24 +36,25 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('token')
     },
 
+    setUser(user) {
+      this.user = user
+    },
+
     // Dipanggil SEKALI saat app pertama kali dimuat (lihat main.js).
     // Kalau ada token di localStorage, verifikasi ke backend + ambil data user-nya
     // (karena user TIDAK ikut tersimpan di localStorage, cuma token).
     async initialize() {
-      console.log('[DEBUG] initialize() mulai, token:', this.token)
       if (this.token) {
         try {
           const { data } = await api.get('api/user/me')
-          console.log('[DEBUG] berhasil ambil user:', data)
           this.user = data
         } catch (error) {
           // token invalid/expired → bersihkan
-          console.log('[DEBUG] GAGAL ambil user, error:', error)
           this.logout()
         }
       }
       this.isInitialized = true
-      console.log('[DEBUG] initialize() selesai, isLoggedIn:', this.isLoggedIn)
+      // console.log('[DEBUG] initialize() selesai, isLoggedIn:', this.isLoggedIn)
     }
   }
 })

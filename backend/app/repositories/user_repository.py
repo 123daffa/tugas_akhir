@@ -58,8 +58,8 @@ class UserRepository:
         )
 
     @staticmethod
-    def create(full_name, email, password):
-        user = User(full_name=full_name, email=email, role='user')
+    def create(full_name, email, password, role='user'):
+        user = User(full_name=full_name, email=email, role=role)
         user.set_password(password)
         db.session.add(user)
         db.session.commit()

@@ -1,5 +1,5 @@
 # test_groq_summarize.py (di folder backend/)
-from app.services.groq_service import summarize_tavily_results
+from backend.app.services.groq_vision_service import summarize_tavily_results
 
 # Simulasi hasil Tavily (tanpa perlu hit Tavily API)
 mock_tavily_results = [

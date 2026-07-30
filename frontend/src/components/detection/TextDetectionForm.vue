@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { ScanSearch } from 'lucide-vue-next';
 
 
 defineProps({
@@ -48,7 +49,7 @@ function handleSubmit() {
     <div class="form-footer">
       <span class="counter">{{ claimText.length }} / 400 karakter · {{ wordCount }} kata</span>
       <button class="btn-check" :disabled="!isTextValid || isLoading" @click="handleSubmit">
-        🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
+        <ScanSearch :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" /> {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
       </button>
     </div>
   </div>

@@ -1,26 +1,50 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import api from '../services/api'
+import { MoveLeft } from 'lucide-vue-next';
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-// Data user -- nanti diganti hasil fetch dari backend, misal GET /api/user/me
-const user = ref({
-  fullName: 'Udin',
-  email: 'udin@email.com',
-  joinedAt: '10 Oktober 2024'
-})
+// Data user diambil LANGSUNG dari Pinia store -- sudah otomatis ke-fetch
+// saat login/refresh lewat authStore.initialize() (GET /api/user/me),
+// jadi tidak perlu fetch ulang di sini.
+const user = computed(() => authStore.user || { fullName: '', email: '', joinedAt: '-' })
 
 // Statistik pemakaian -- kartu pertama (Total Deteksi) di-highlight beda dari 4 kategori lainnya
 const stats = ref([
-  { label: 'Total Deteksi', value: 24, highlight: true },
-  { label: 'Fakta', value: 7 },
+  { label: 'Total Deteksi', value: 0, highlight: true },
+  { label: 'Fakta', value: 0 },
   { label: 'False', value: 7 },
-  { label: 'Misleading', value: 7 },
-  { label: 'Fabricated', value: 7 }
+  { label: 'Misleading', value: 0 },
+  { label: 'Fabricated', value: 0 }
 ])
+
+async function loadStats() {
+  try {
+    const { data } = await api.get('/api/history', { params: { per_page: 1000, page: 1 } })
+    const items = data.items || []
+    const counts = { 'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0 }
+    items.forEach((item) => {
+      if (counts[item.category] !== undefined) counts[item.category] += 1
+    })
+    stats.value = [
+      { label: 'Total Deteksi', value: data.totalItems ?? items.length, highlight: true },
+      { label: 'Fakta', value: counts['Fakta'] },
+      { label: 'False', value: counts['False Content'] },
+      { label: 'Misleading', value: counts['Misleading Content'] },
+      { label: 'Fabricated', value: counts['Fabricated Content'] }
+    ]
+  } catch (err) {
+    console.error('Gagal ambil statistik riwayat:', err)
+  }
+}
+
+onMounted(() => {
+  loadStats()
+})
 
 const initials = computed(() => user.value.fullName.trim()[0]?.toUpperCase() || '?')
 
@@ -50,15 +74,17 @@ function cancelEditingProfile() {
 
 async function saveProfile() {
   isSavingProfile.value = true
+  profileMessage.value = ''
   try {
-    // TODO: sambungkan ke endpoint backend, misal:
-    // await api.put('/user/me', profileForm.value)
-    user.value.fullName = profileForm.value.fullName
-    user.value.email = profileForm.value.email
+    const {data} = await api.put ('api/user/me', { 
+      fullName: profileForm.value.fullName,
+      email: profileForm.value.email
+    })
+    authStore.setUser(data) // update data user di store, langsung ke-reflect di Navbar dll
     isEditingProfile.value = false
     profileMessage.value = 'Profil berhasil diperbarui.'
   } catch (err) {
-    profileMessage.value = 'Gagal menyimpan perubahan. Silakan coba lagi.'
+    profileMessage.value = err.response?.data?.message || 'Gagal menyimpan perubahan. Silakan coba lagi.'
   } finally {
     isSavingProfile.value = false
   }
@@ -103,16 +129,15 @@ async function savePassword() {
   isSavingPassword.value = true
   passwordError.value = ''
   try {
-    // TODO: sambungkan ke endpoint backend, misal:
-    // await api.put('/user/me/password', {
-    //   currentPassword: passwordForm.value.currentPassword,
-    //   newPassword: passwordForm.value.newPassword
-    // })
+    await api.put('api/user/me/password', {
+      currentPassword: passwordForm.value.currentPassword,
+      newPassword: passwordForm.value.newPassword
+    })
     isChangingPassword.value = false
     passwordMessage.value = 'Password berhasil diubah.'
   } catch (err) {
     // Contoh: kalau backend bilang password lama salah
-    passwordError.value = 'Password lama tidak sesuai.'
+    passwordError.value = err.response?.data?.message ||'Password lama tidak sesuai.'
   } finally {
     isSavingPassword.value = false
   }
@@ -126,7 +151,7 @@ function handleLogout() {
 
 <template>
   <div class="profile-page">
-    <RouterLink to="/" class="back-link">⇚  Kembali ke Halaman Utama</RouterLink>
+    <RouterLink to="/" class="back-link"> <MoveLeft :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Kembali ke Halaman Utama</RouterLink>
 
     <h1 class="page-title">Pengaturan Akun</h1>
 

@@ -35,9 +35,7 @@ class HistoryService:
     def save_check_result(user_id, mode, result, input_text=None, caption=None, image_path=None):
         """Simpan hasil pipeline cek teks/gambar/video ke detection_history.
         Dipanggil dari text_routes.py / image_routes.py / video_routes.py
-        SETELAH pipeline berhasil. Kalau user_id kosong (tidak login), tidak
-        disimpan — cukup return None, jangan sampai gagal/nge-crash request
-        utama yang sudah berhasil dapat hasil cek kontennya."""
+        SETELAH pipeline berhasil."""
         if not user_id:
             return None
 

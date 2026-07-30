@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { Upload } from 'lucide-vue-next';
 
 const props = defineProps({
   label: { type: String, required: true },       // contoh: "Unggah Gambar Pendukung"
@@ -49,7 +50,7 @@ function openPicker() {
       class="hidden-input"
       @change="onInputChange"
     />
-    <div class="upload-icon"><img src="../../assets/upload.svg" alt="upload"></div>
+    <div class="upload-icon"> <Upload/></div>
     <div class="upload-label">{{ fileName || label }}</div>
     <div class="upload-hint">{{ fileName ? 'Klik untuk ganti file' : hint }}</div>
   </div>

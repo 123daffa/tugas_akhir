@@ -6,8 +6,6 @@ import ImageDetectionForm from '../components/detection/ImageDetectionForm.vue'
 import VideoDetectionForm from '../components/detection/VideoDetectionForm.vue'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
-
-// ← GANTI import yang di-comment dengan ini
 import { checkText, checkImage, checkVideo } from '../services/hoaxDetectionService'
 
 const activeTab = ref('teks')
@@ -17,9 +15,6 @@ const isLoading = ref(false)
 
 // Fungsi untuk mapping response backend ke format yang dipakai komponen
 function mapResult(data, type) {
-  // Backend mengembalikan klasifikasi: FAKTA/MISLEADING/FABRICATED/FALSE/TIDAK PASTI
-  // Frontend pakai: label, accuracy, conclusion, source, metrics
-  
   const labelMap = {
   'FAKTA': 'Fakta',
   'MISLEADING': 'Misleading Content',
@@ -27,10 +22,6 @@ function mapResult(data, type) {
   'FALSE': 'False Content'
 }
 
-  // // Konversi kredibilitas_score (0.0-1.0) ke persentase (0-100)
-  // const accuracy = Math.round(data.kredibilitas_score * 100)
-
-  // Metrics untuk ConfidenceScore component
   const metrics = [
     {
       label: 'Kredibilitas Sumber',
@@ -39,90 +30,25 @@ function mapResult(data, type) {
     }
   ]
 
-  // Tambah similarity score kalau ada (image/video pipeline)
-  if (data.similarity_score !== undefined) {
-    metrics.push({
-      label: 'Konsistensi Visual-Teks',
-      value: Math.round(data.similarity_score * 100),
-      color: data.similarity_score >= 0.7 ? 'green' : data.similarity_score >= 0.5 ? 'orange' : 'red'
-    })
-  }
-
   return {
     label: labelMap[data.klasifikasi] || data.klasifikasi,
-    // accuracy: data.rata_rata_score,
     conclusion: data.penjelasan,
     articles: data.articles || [],
     jumlah_artikel: data.jumlah_artikel || 0,        
     kredibilitas_score: data.kredibilitas_score || 0,      
     metrics,
+    confidence: data.confidence || 0,                          // ← tambah
+    stance_breakdown: data.stance_breakdown || {               // ← tambah
+      MENDUKUNG: 0, MEMBANTAH: 0, TIDAK_RELEVAN: 0
+    },
+    metrics,
+    similarity_score: data.similarity_score,
+    caption_translated: data.caption_translated,
+    alasan_per_artikel: data.alasan_per_artikel || [], 
     // Simpan raw data kalau butuh debug
     raw: data
   }
 }
-
-// async function handleTextSubmit(text) {
-//   errorMessage.value = ''
-//   isLoading.value = true
-//   try {
-//     const { data } = await detectText(text)
-//     result.value = data
-//   } catch (err) {
-//     if (err.response) {
-//       // Backend BERHASIL dihubungi, tapi menolak request (misal validasi
-//       // gagal: kurang dari 10 kata, dsb). Ini HARUS ditampilkan ke user,
-//       // bukan ditutupi diam-diam pakai data dummy.
-//       errorMessage.value =
-//         err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
-//     } else {
-//       // Backend gak bisa dihubungi sama sekali (server belum jalan, network putus, dst).
-//       // Kondisi ini yang pantas fallback ke dummy data, biar UI tetap bisa didemokan.
-//       console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-//       result.value = DUMMY_RESULT
-//     }
-//   } finally {
-//     isLoading.value = false
-//   }
-  
-// }
-
-// async function handleImageSubmit({ text, image }) {
-//   errorMessage.value = ''
-//   isLoading.value = true
-//   try {
-//     const { data } = await detectImage(text, image)
-//     result.value = data
-//   } catch (err) {
-//     if (err.response) {
-//       errorMessage.value =
-//         err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
-//     } else {
-//       console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-//       result.value = DUMMY_RESULT
-//     }
-//   } finally {
-//     isLoading.value = false
-//   }
-// }
- 
-// async function handleVideoSubmit({ text, video }) {
-//   errorMessage.value = ''
-//   isLoading.value = true
-//   try {
-//     const { data } = await detectVideo(text, video)
-//     result.value = data
-//   } catch (err) {
-//     if (err.response) {
-//       errorMessage.value =
-//         err.response.data?.message || err.response.data?.error || 'Permintaan ditolak oleh server.'
-//     } else {
-//       console.warn('Backend belum tersedia, pakai data contoh:', err.message)
-//       result.value = DUMMY_RESULT
-//     }
-//   } finally {
-//     isLoading.value = false
-//   }
-// }
 
 async function handleTextSubmit(text) {
   errorMessage.value = ''
@@ -221,13 +147,23 @@ async function handleVideoSubmit({ text, video }) {
           :articles="result.articles"
           :jumlah_artikel="result.jumlah_artikel"
           :kredibilitas_score="result.kredibilitas_score"
+          :confidence="result.confidence"
+          :stance_breakdown="result.stance_breakdown"
+          :alasan_per_artikel="result.alasan_per_artikel"
+          :image_relevance_score="hasil.image_relevance_score"
+          :penjelasan_gambar="hasil.penjelasan_gambar"
+          :artikel_gambar_paling_relevan="hasil.artikel_gambar_paling_relevan"
+          :detail_gambar_per_artikel="hasil.detail_gambar_per_artikel"
         />
       </div>
 
       <!-- Kolom kanan: kartu tingkat keyakinan AI, hanya tampil kalau sudah ada hasil -->
-        <!-- <div class="right-col" v-if="result">
-          <ConfidenceScore :accuracy="result.accuracy" :metrics="result.metrics" />
-        </div> -->
+        <div class="right-col" 
+        v-if="result && result.raw.similarity_score !== undefined">
+          <ConfidenceScore 
+          :similarity_score="result.raw.similarity_score"
+          :caption_translated="result.raw.caption_translated || ''" />
+        </div>
     </div>
   </div>
 </template>

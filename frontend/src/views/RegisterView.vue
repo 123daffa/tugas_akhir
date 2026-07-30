@@ -2,9 +2,7 @@
 import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-
-// State form -- semua field disimpan di sini, gampang di-collect jadi 1 object
-// pas kirim ke backend nanti (misal POST /api/auth/register)
+import { ShieldUser, Eye, EyeOff, Lock, Mail, UserPen } from 'lucide-vue-next';
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -56,7 +54,7 @@ async function handleRegister() {
 <template>
   <div class="auth-page">
     <div class="auth-card">
-      <div class="auth-icon">🛡</div>
+      <div class="auth-icon"><ShieldUser/></div>
 
       <h1 class="auth-title">Daftar FactCheck.ID</h1>
       <p class="auth-subtitle">Bergabunglah untuk memulai verifikasi informasi dengan teknologi AI.</p>
@@ -65,7 +63,7 @@ async function handleRegister() {
         <div class="form-field">
           <label for="fullName">Nama Lengkap</label>
           <div class="input-wrapper">
-            <span class="input-icon">👤</span>
+            <span class="input-icon"><UserPen :size="18" /></span>
             <input
               id="fullName"
               v-model="form.fullName"
@@ -79,7 +77,7 @@ async function handleRegister() {
         <div class="form-field">
           <label for="email">Email</label>
           <div class="input-wrapper">
-            <span class="input-icon">✉</span>
+            <span class="input-icon"><Mail :size="18" /></span>
             <input
               id="email"
               v-model="form.email"
@@ -93,7 +91,7 @@ async function handleRegister() {
         <div class="form-field">
           <label for="password">Kata Sandi</label>
           <div class="input-wrapper">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon"><Lock :size="18" /></span>
             <input
               id="password"
               v-model="form.password"
@@ -102,7 +100,8 @@ async function handleRegister() {
               autocomplete="new-password"
             />
             <button type="button" class="toggle-visibility" @click="showPassword = !showPassword">
-              {{ showPassword ? '🙈' : '👁' }}
+                <EyeOff v-if="!showPassword" :size="18" />
+                <Eye v-else :size="18" />
             </button>
           </div>
         </div>
@@ -110,7 +109,7 @@ async function handleRegister() {
         <div class="form-field">
           <label for="confirmPassword">Konfirmasi Kata Sandi</label>
           <div class="input-wrapper" :class="{ 'input-wrapper--error': passwordMismatch }">
-            <span class="input-icon">🔒</span>
+            <span class="input-icon"><Lock :size="18" /></span>
             <input
               id="confirmPassword"
               v-model="form.confirmPassword"
@@ -119,7 +118,8 @@ async function handleRegister() {
               autocomplete="new-password"
             />
             <button type="button" class="toggle-visibility" @click="showConfirmPassword = !showConfirmPassword">
-              {{ showConfirmPassword ? '🙈' : '👁' }}
+                <EyeOff v-if="!showConfirmPassword" :size="18" />
+                <Eye v-else :size="18" />
             </button>
           </div>
           <p v-if="passwordMismatch" class="field-error">Kata sandi tidak cocok.</p>
@@ -136,7 +136,7 @@ async function handleRegister() {
         <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
 
         <button type="submit" class="btn-submit" :disabled="!isFormValid || isSubmitting">
-          {{ isSubmitting ? 'Memproses...' : 'Daftar Sekarang →' }}
+          {{ isSubmitting ? 'Memproses...' : 'Daftar Sekarang' }}
         </button>
       </form>
 

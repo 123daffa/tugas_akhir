@@ -18,6 +18,23 @@ class AdminService:
         }
 
     @staticmethod
+    def create_user(data):
+        full_name = (data.get('fullName') or '').strip()
+        email = (data.get('email') or '').strip().lower()
+        password = data.get('password') or ''
+        role = data.get('role') if data.get('role') in ('user', 'admin') else 'user'
+
+        if not full_name or not email or not password:
+            raise ServiceError('Nama, email, dan password wajib diisi.')
+        if len(password) < 6:
+            raise ServiceError('Password minimal 6 karakter.')
+        if UserRepository.email_taken(email):
+            raise ConflictError('Email sudah digunakan akun lain.')
+
+        user = UserRepository.create(full_name, email, password, role)
+        return user.to_dict()
+
+    @staticmethod
     def get_user_detail(user_id):
         user = UserRepository.find_by_id(user_id)
         if not user:

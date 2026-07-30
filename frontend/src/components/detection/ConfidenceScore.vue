@@ -4,10 +4,6 @@ import {ref, watch, onMounted} from 'vue';
  const props = defineProps({
   label: { type: String, default: '' },
   similarity_score: { type: Number, required: true },        // contoh: 92
-  metrics: {
-    type: Array,
-    default: () => []
-  },
   caption_translated: {type: String, required: true}
 })
 
@@ -42,13 +38,13 @@ function animateCountUp(target) {
  
 // Animasi jalan pas komponen pertama kali muncul di layar...
 onMounted(() => {
-  animateCountUp(props.accuracy)
+  animateCountUp(Math.round(props.similarity_score * 100))
 })
  
 // ...DAN setiap kali prop accuracy berubah (misal user analisis klaim baru,
 // hasil baru masuk, animasinya jalan ulang dari angka lama ke angka baru)
-watch(() => props.accuracy, (newValue) => {
-  animateCountUp(newValue)
+watch(() => props.similarity_score, (newValue) => {
+  animateCountUp(Math.round(newValue * 100))
 })
 </script>
 
@@ -63,15 +59,11 @@ watch(() => props.accuracy, (newValue) => {
       </div>
     </div>
 
-    <!-- <ul class="metric-list">
-      <li v-for="metric in metrics" :key="metric.label" class="metric-item">
-        <span class="metric-label">
-          <span class="metric-dot" :class="`metric-dot--${metric.color}`"></span>
-          {{ metric.label }}
-        </span>
-        <span class="metric-value">{{ metric.value }}%</span>
-      </li>
-    </ul> -->
+     <div v-if="caption_translated" class="translated-caption">
+      <p class="translated-label">Caption (diterjemahkan)</p>
+      <p class="translated-text">"{{ caption_translated }}"</p>
+    </div>
+
   </div>
 </template>
 
@@ -122,6 +114,30 @@ watch(() => props.accuracy, (newValue) => {
   font-size: 15px;
   color: black;
   margin-top: 4px;
+}
+
+.translated-caption {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.translated-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.translated-text {
+  font-size: 14px;
+  color: black;
+  font-style: italic;
+  margin: 0;
+  line-height: 1.5;
 }
 
 .metric-list {

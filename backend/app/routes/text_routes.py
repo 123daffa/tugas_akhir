@@ -10,7 +10,7 @@ text_bp = Blueprint("text", __name__)
 @text_bp.route("/check/text", methods=["POST"])
 @jwt_required()
 def check_text():
-    data = request.get_json()
+    data = request.get_json() # body request
 
     # Validasi input
     if not data or "text" not in data:
@@ -24,8 +24,8 @@ def check_text():
         ), 400
 
     try:
-        result = run_text_pipeline(data["text"])
-        response = TextCheckResponse(**result)
+        result = run_text_pipeline(data["text"]) # menjalankan pipeline
+        response = TextCheckResponse(**result) # dict dibungkus menjadi dataclass
         user_id = get_jwt_identity()
 
         try:

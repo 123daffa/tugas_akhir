@@ -7,6 +7,10 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ForgotPasswordView from '../views/ForgotPasswordView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import AdminLayout from '../components/admin/AdminLayout.vue'
+import AdminDashboardView from '../views/AdminDashboardView.vue'
+import AdminUsersView from '../views/AdminUsersView.vue'
+import AdminHistoryView from '../views/AdminHistoryView.vue'
 import { useAuthStore } from '../stores/auth'
 
 
@@ -60,27 +64,66 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView,
-    }
+    },
+     {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, requiresAdmin: true, hideLayout: true },
+      children: [
+        {
+          path: '',
+          name: 'admin_dashboard',
+          component: AdminDashboardView,
+        },
+        {
+          path: 'users',
+          name: 'admin_users',
+          component: AdminUsersView,
+        },
+        {
+          path: 'history',
+          name: 'admin_history',
+          component: AdminHistoryView,
+        },
+      ],
+    },
   ],
 })
 
 
-// ===== INI BAGIAN PENJAGANYA (route guard) =====
-// SEBELUM halaman tujuan benar-benar dirender.
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  
+
   if (!authStore.isInitialized) {
     await authStore.initialize()
   }
 
+  // Belum login
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     return '/login'
-  } if (to.meta.requiresAdmin && !authStore.isAdmin) {
+  }
+
+  // Halaman khusus admin
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
     return '/'
-  } if ((to.path === '/login' || to.path === '/register') && authStore.isLoggedIn) {
-    return '/'
-  } 
+  }
+
+  // Sudah login lalu membuka login/register
+  if (
+    (to.path === '/login' || to.path === '/register') &&
+    authStore.isLoggedIn
+  ) {
+    return authStore.isAdmin ? '/admin' : '/'
+  }
+
+  // Admin tidak boleh masuk ke halaman user
+  if (
+    authStore.isAdmin &&
+    ['/', '/deteksi', '/riwayat', '/profile'].includes(to.path)
+  ) {
+    return '/admin'
+  }
+
   return true
 })
 

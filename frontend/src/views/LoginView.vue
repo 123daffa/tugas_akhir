@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { Eye,EyeOff } from 'lucide-vue-next';
 
 
 const router = useRouter()
@@ -11,7 +12,6 @@ const form = ref({
   password: ''
 })
 
-const rememberMe = ref(false)
 const showPassword = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
@@ -24,9 +24,17 @@ async function handleLogin() {
   isSubmitting.value = true
    try {
     await authStore.login(form.value.email, form.value.password)
-    router.push('/')
+
+   if (authStore.isAdmin) {
+      router.replace('/admin')
+    } else {
+      router.replace('/')
+    }
+
   } catch (err) {
-    errorMessage.value = err.response?.data?.message || 'Tidak dapat terhubung ke server. Coba lagi nanti.'
+    errorMessage.value =
+      err.response?.data?.message ||
+      'Tidak dapat terhubung ke server. Coba lagi nanti.'
   } finally {
     isSubmitting.value = false
   }
@@ -69,16 +77,13 @@ async function handleLogin() {
                 autocomplete="current-password"
               />
               <button type="button" class="toggle-visibility" @click="showPassword = !showPassword">
-                {{ showPassword ? '👀' : '👁' }}
+                <EyeOff v-if="!showPassword" :size="18" />
+                <Eye v-else :size="18" />
               </button>
             </div>
           </div>
 
           <div class="form-options">
-            <label class="checkbox-row">
-              <input v-model="rememberMe" type="checkbox" />
-              <span>Ingat saya</span>
-            </label>
             <RouterLink to="/lupa_password" class="forgot-link">Lupa Password?</RouterLink>
           </div>
 
@@ -94,7 +99,7 @@ async function handleLogin() {
         </p>
       </div>
 
-      <p class="auth-copyright">© 2024 FactCheck.ID. Teknologi AI untuk Kebenaran Informasi.</p>
+      <p class="auth-copyright">© 2026 FactCheck.ID. Teknologi AI untuk Kebenaran Informasi.</p>
     </div>
   </div>
 </template>
@@ -197,9 +202,7 @@ async function handleLogin() {
 }
 
 .form-options {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  text-align: right;
   font-size: 12px;
 }
 

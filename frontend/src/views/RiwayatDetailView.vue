@@ -1,19 +1,31 @@
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
+import api from '../services/api'
+import { MoveLeft } from 'lucide-vue-next';
 
 const route = useRoute()
 
-// route.params.id selalu string (dari URL), findHistoryById yang urus konversinya.
-// Nanti kalau udah connect ke backend, ini diganti pola fetch di onMounted:
-//   const item = ref(null)
-//   onMounted(async () => {
-//     const { data } = await api.get(`/history/${route.params.id}`)
-//     item.value = data
-//   })
-const item = computed(() => findHistoryById(route.params.id))
+const item = ref(null)
+const isLoading = ref(true)
+const notFound = ref(false)
+
+async function loadDetail() {
+  isLoading.value = true
+  notFound.value = false
+  try {
+    const { data } = await api.get(`/api/history/${route.params.id}`)
+    item.value = data
+  } catch (err) {
+    notFound.value = true
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(loadDetail)
 
 const typeIconMap = {
   Teks: '📝',
@@ -24,7 +36,11 @@ const typeIconMap = {
 
 <template>
   <div class="detail-page">
-    <RouterLink to="/riwayat" class="back-link">⇚  Kembali ke Riwayat</RouterLink>
+    <RouterLink to="/riwayat" class="back-link"><MoveLeft :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Kembali ke Riwayat</RouterLink>
+
+    <div v-if="isLoading" class="not-found">
+      <p>Memuat riwayat...</p>
+    </div>
 
     <!-- Kondisi: data ditemukan -->
     <div v-if="item">
@@ -44,11 +60,16 @@ const typeIconMap = {
           <AnalysisResult
             :label="item.category"
             :conclusion="item.conclusion"
-            :source="item.source"
+            :articles="item.sources"
+            :jumlah_artikel="item.metrics?.jumlah_artikel ?? item.sources.length"
+            :kredibilitas_score="item.accuracy / 100"
           />
         </div>
-        <div class="right-col">
-          <ConfidenceScore :accuracy="item.accuracy" :metrics="item.metrics" />
+        <div class="right-col" v-if="item.type !== 'Teks' && item.metrics?.similarity_score != null">
+          <ConfidenceScore
+            :similarity_score="item.metrics.similarity_score"
+            :caption_translated="item.metrics.caption_translated || ''"
+          />
         </div>
       </div>
     </div>
@@ -56,7 +77,7 @@ const typeIconMap = {
     <!-- Kondisi: id gak ketemu di data (misal salah ketik URL, atau data udah dihapus) -->
     <div v-else class="not-found">
       <p>Riwayat dengan ID ini tidak ditemukan.</p>
-      <RouterLink to="/riwayat" class="btn-back">Kembali ke Riwayat</RouterLink>
+      <RouterLink to="/riwayat" class="btn-back"> <MoveLeft :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Kembali ke Riwayat</RouterLink>
     </div>
   </div>
 </template>

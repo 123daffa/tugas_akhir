@@ -1,6 +1,7 @@
 <script setup>
 import { ref,computed } from 'vue'
 import FileUploadBox from './FileUploadBox.vue'
+import { ScanSearch } from 'lucide-vue-next';
 
 // isLoading datang dari parent, karena parent yang beneran ngejalanin await API call
 defineProps({
@@ -65,7 +66,7 @@ function handleSubmit() {
       :disabled="!isFormValid || isLoading"
       @click="handleSubmit"
     >
-      🔍 {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
+      <ScanSearch :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" /> {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
     </button>
   </div>
 </template>

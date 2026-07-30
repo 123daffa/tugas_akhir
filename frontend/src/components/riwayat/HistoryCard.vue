@@ -36,8 +36,7 @@ const displayImage = computed(() => props.image || defaultThumbnail)
   <div class="history-card">
     <div class="thumbnail">
       <img :src="displayImage" :alt="title" class="thumbnail-img" />
-      <!-- <div v-else class="thumbnail-placeholder">🖼</div> -->
-
+      
       <span
         class="category-badge"
         :style="{

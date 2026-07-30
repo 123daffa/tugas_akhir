@@ -11,7 +11,7 @@ def get_me():
     return jsonify(UserService.get_me(get_jwt_identity())), 200
 
 
-@user_bp.route('/user/me', methods=['PUT'])
+@user_bp.route('/user/me', methods=['PUT']) # memperbarui data
 @jwt_required()
 def update_me():
     data = request.get_json(silent=True) or {}
@@ -19,7 +19,7 @@ def update_me():
     return jsonify(result), 200
 
 
-@user_bp.route('/user/me/password', methods=['PUT'])
+@user_bp.route('/user/me/password', methods=['PUT']) # memperbarui data
 @jwt_required()
 def change_password():
     data = request.get_json(silent=True) or {}

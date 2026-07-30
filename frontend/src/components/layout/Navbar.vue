@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { RouterLink, useRouter} from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { House, ShieldAlert, GalleryVerticalEnd, UserPen, LogOut } from 'lucide-vue-next';
 
 const menuOpen = ref(false)
 
@@ -22,12 +23,20 @@ function handleLogout() {
 
         <!-- Navbar (kanan) -->
         <nav class="navbar" :class="{ open: menuOpen }">
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/deteksi">Deteksi</RouterLink>
-          <RouterLink to="/riwayat">Riwayat</RouterLink>
-          <RouterLink to="/profile">Profile</RouterLink>
+          <RouterLink to="/" > 
+            <House :size="16" style="vertical-align: middle; margin-bottom: 2px;" /> Home
+          </RouterLink>
+          <RouterLink to="/deteksi">
+            <ShieldAlert :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Deteksi
+          </RouterLink>
+          <RouterLink to="/riwayat">
+            <GalleryVerticalEnd :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Riwayat
+          </RouterLink>
+          <RouterLink to="/profile">
+            <UserPen :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Profile
+          </RouterLink>
           <button class="btn-mulai" @click="handleLogout">
-            Log Out
+            <LogOut :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Log Out
           </button>
         </nav>
     </header>
@@ -93,7 +102,6 @@ function handleLogout() {
 .navbar a.router-link-exact-active {
   color          : #1B2B4B;
   background     : transparent;
-  text-decoration: underline;
   text-underline-offset: 4px;
 }
 
