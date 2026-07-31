@@ -45,6 +45,11 @@ function mapResult(data, type) {
     similarity_score: data.similarity_score,
     caption_translated: data.caption_translated,
     alasan_per_artikel: data.alasan_per_artikel || [], 
+    // ← field gambar, sebelumnya tidak dipetakan sama sekali
+    image_relevance_score: data.image_relevance_score ?? null,
+    penjelasan_gambar: data.penjelasan_gambar || '',
+    artikel_gambar_paling_relevan: data.artikel_gambar_paling_relevan || null,
+    detail_gambar_per_artikel: data.detail_gambar_per_artikel || [],
     // Simpan raw data kalau butuh debug
     raw: data
   }
@@ -143,17 +148,17 @@ async function handleVideoSubmit({ text, video }) {
         <AnalysisResult
           v-if="result"
           :label="result.label"
-          :conclusion="result.conclusion"
+          :penjelasan="result.conclusion"
           :articles="result.articles"
           :jumlah_artikel="result.jumlah_artikel"
           :kredibilitas_score="result.kredibilitas_score"
           :confidence="result.confidence"
           :stance_breakdown="result.stance_breakdown"
           :alasan_per_artikel="result.alasan_per_artikel"
-          :image_relevance_score="hasil.image_relevance_score"
-          :penjelasan_gambar="hasil.penjelasan_gambar"
-          :artikel_gambar_paling_relevan="hasil.artikel_gambar_paling_relevan"
-          :detail_gambar_per_artikel="hasil.detail_gambar_per_artikel"
+          :image_relevance_score="result.image_relevance_score"
+          :penjelasan_gambar="result.penjelasan_gambar"
+          :artikel_gambar_paling_relevan="result.artikel_gambar_paling_relevan"
+          :detail_gambar_per_artikel="result.detail_gambar_per_artikel"
         />
       </div>
 

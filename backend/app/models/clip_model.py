@@ -15,34 +15,24 @@ class CLIPHandler:
 
         print(f"[INFO] CLIP model loaded on {self.device}")
 
-    def get_similarity(self, image, text: str) -> float:
-        inputs = self.processor(
-            text=[text],
-            images=image,
-            return_tensors="pt",
-        ).to(self.device) 
+    def get_image_embedding(self, image):
+        """Ambil embedding gambar saja (dinormalisasi)."""
+        inputs = self.processor(images=image, return_tensors="pt").to(self.device)
 
-        with torch.no_grad(): # menonaktifkan perhitungan gradient selama proses inferensi.
-            outputs = self.model(**inputs) # menghasilkan embedding untuk gambar dan teks menggunakan model CLIP.
-
-        image_embeds = outputs.image_embeds
-        text_embeds = outputs.text_embeds
+        with torch.no_grad():
+            image_embeds = self.model.get_image_features(**inputs)
 
         image_embeds = image_embeds / image_embeds.norm(dim=-1, keepdim=True)
-        text_embeds = text_embeds / text_embeds.norm(dim=-1, keepdim=True)
+        return image_embeds
 
-        similarity = (image_embeds @ text_embeds.T).item() # menghitung dot product antara embedding gambar dan teks
+    def get_image_similarity(self, image1, image2) -> float:
+        """Similarity antara DUA gambar (image-image)."""
+        embed1 = self.get_image_embedding(image1)
+        embed2 = self.get_image_embedding(image2)
 
-        # print("Image shape:", image_embeds.shape)
-        # print("Text shape:", text_embeds.shape)
+        similarity = (embed1 @ embed2.T).item()
 
-        # dot_product = image_embeds @ text_embeds.T
-        # print("Dot Product:", dot_product)
-
-        # similarity = dot_product.item()
-        # print("Similarity:", similarity)
-
-        print(f"[INFO] Similarity antara caption dan content: '{similarity}'")
+        print(f"[INFO] Similarity antar gambar: '{similarity}'")
 
         return similarity
 

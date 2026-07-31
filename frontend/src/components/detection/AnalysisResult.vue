@@ -9,12 +9,12 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  jumlah_artikel: { type: Number, default: 0 },      // ← tambah
+  jumlah_artikel: { type: Number, default: 0 },      
   kredibilitas_score: { type: Number, default: 0 },
-  confidence: { type: Number, default: 0 },              // ← tambah
-  stance_breakdown: {                                     // ← tambah
+  confidence: { type: Number, default: 0 },              
+  stance_breakdown: {                                     
     type: Object,
-    default: () => ({ MENDUKUNG: 0, MEMBANTAH: 0, TIDAK_RELEVAN: 0 })
+    default: () => ({ 'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0  })
   },
   alasan_per_artikel: {
     type: Array,
@@ -38,6 +38,13 @@ const labelStyleMap = {
   'Fabricated Content': { bg: '#808080', color: 'white', icon: '✂' }
 }
 
+const stanceCardStyleMap = {
+  'Fakta': { bg: '#E5FFF3', border: '#20d48a' },
+  'False Content': { bg: '#FFE5E5', border: '#ff4d4d' },
+  'Misleading Content': { bg: '#FFF8E1', border: '#ffcc00' },
+  'Fabricated Content': { bg: '#F0F0F0', border: '#808080' }
+}
+
 // Warna bar confidence ikut label klasifikasi
 const confidenceBarGradient = computed(() => {
   const gradientMap = {
@@ -57,6 +64,8 @@ const imageBarGradient = computed(() => {
     ? 'linear-gradient(90deg, #20d48a, #006C49)'
     : 'linear-gradient(90deg, #ff8080, #cc0000)'
 })
+// Urutan tampilan tetap konsisten (bukan urutan acak dari Object.keys)
+const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabricated Content']
 </script>
 
 <template>
@@ -117,47 +126,43 @@ const imageBarGradient = computed(() => {
       </div>
     </div>
 
-    <!-- section stance breakdown -->
+     <!-- section stance breakdown -- sekarang 4 kategori (majority vote), bukan 3 sikap -->
     <div class="section">
-      <div class="section-title">🗳️ Rincian Sikap Artikel</div>
-      <div class="stance-grid">
-        <div class="stance-item stance-support">
-          <span class="stance-label">Mendukung</span>
-          <span class="stance-value">{{ stance_breakdown.MENDUKUNG.toFixed(2) }}</span>
-        </div>
-        <div class="stance-item stance-against">
-          <span class="stance-label">Membantah</span>
-          <span class="stance-value">{{ stance_breakdown.MEMBANTAH.toFixed(2) }}</span>
-        </div>
-        <div class="stance-item stance-neutral">
-          <span class="stance-label">Tidak Relevan</span>
-          <span class="stance-value">{{ stance_breakdown.TIDAK_RELEVAN.toFixed(2) }}</span>
+      <div class="section-title">🗳️ Rincian Vote Per Kategori</div>
+      <div class="stance-grid-4">
+        <div
+          v-for="kategori in kategoriUrutan"
+          :key="kategori"
+          class="stance-item-4"
+          :style="{ background: stanceCardStyleMap[kategori].bg }"
+        >
+          <span class="stance-label">{{ kategori }}</span>
+          <span class="stance-value">{{ stance_breakdown[kategori] || 0 }}</span>
         </div>
       </div>
     </div>
 
-      <!-- section alasan per artikel -->
-  <div class="section" v-if="alasan_per_artikel.length > 0">
-    <div class="section-title">📝 Analisis Per Artikel</div>
-    <div class="stance-detail-list">
-      <div
-        v-for="(item, index) in alasan_per_artikel"
-        :key="index"
-        class="stance-detail-item"
-        :class="{
-          'stance-detail-support': item.stance === 'MENDUKUNG',
-          'stance-detail-against': item.stance === 'MEMBANTAH',
-          'stance-detail-neutral': item.stance === 'TIDAK_RELEVAN'
-        }"
-      >
-        <div class="stance-detail-header">
-          <span class="stance-detail-title">{{ item.judul }}</span>
-          <span class="stance-detail-badge">{{ item.stance }}</span>
+   <!-- section alasan per artikel -->
+    <div class="section" v-if="alasan_per_artikel.length > 0">
+      <div class="section-title">📝 Analisis Per Artikel</div>
+      <div class="stance-detail-list">
+        <div
+          v-for="(item, index) in alasan_per_artikel"
+          :key="index"
+          class="stance-detail-item"
+          :style="{
+            background: stanceCardStyleMap[item.stance]?.bg || '#F5F5F5',
+            borderLeftColor: stanceCardStyleMap[item.stance]?.border || '#a0a0a0'
+          }"
+        >
+          <div class="stance-detail-header">
+            <span class="stance-detail-title">{{ item.judul }}</span>
+            <span class="stance-detail-badge">{{ item.stance }}</span>
+          </div>
+          <p class="stance-detail-reason">{{ item.alasan }}</p>
         </div>
-        <p class="stance-detail-reason">{{ item.alasan }}</p>
       </div>
     </div>
-  </div>
 
     <!-- section detail gambar per artikel -->
     <div class="section" v-if="detail_gambar_per_artikel.length > 0">
@@ -307,31 +312,26 @@ const imageBarGradient = computed(() => {
   color: #006C49;
 }
 
-.stance-grid {
-  display: flex;
+/* Grid 4 kategori (menggantikan stance-grid 3 kolom lama) */
+.stance-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
-.stance-item {
-  flex: 1;
+@media (max-width: 480px) {
+  .stance-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stance-item-4 {
   border-radius: 16px;
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   text-align: center;
-}
-
-.stance-support {
-  background: #E5FFF3;
-}
-
-.stance-against {
-  background: #FFE5E5;
-}
-
-.stance-neutral {
-  background: #F0F0F0;
 }
 
 .stance-label {
@@ -366,11 +366,6 @@ const imageBarGradient = computed(() => {
   border-left-color: #ff4d4d;
 }
 
-.stance-detail-neutral {
-  background: #F5F5F5;
-  border-left-color: #a0a0a0;
-}
-
 .stance-detail-header {
   display: flex;
   justify-content: space-between;
@@ -402,7 +397,6 @@ const imageBarGradient = computed(() => {
   margin: 0;
 }
 
-/* Style baru untuk list artikel */
 .article-list {
   display: flex;
   flex-direction: column;
