@@ -17,8 +17,7 @@ class AuthService:
             raise ConflictError('Email sudah terdaftar.')
 
         user = UserRepository.create(full_name, email, password)
-        token = create_access_token(identity=str(user.id))
-        return {'token': token, 'user': user.to_dict()}
+        return {'user': user.to_dict()}
 
     @staticmethod
     def login(email, password):

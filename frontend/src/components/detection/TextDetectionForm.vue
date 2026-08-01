@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import { ScanSearch } from 'lucide-vue-next';
 
-
 defineProps({
   isLoading: { type: Boolean, default: false }
 })
@@ -10,24 +9,31 @@ defineProps({
 const emit = defineEmits(['submit'])
 const claimText = ref('')
 
-// Hitung jumlah kata: pecah teks berdasarkan spasi/whitespace,
-// buang elemen kosong hasil pecahan (misal spasi ganda menghasilkan '').
 const wordCount = computed(() => {
   return claimText.value.trim().split(/\s+/).filter(Boolean).length
 })
- 
+
 const MIN_WORDS = 10
-const isTextValid = computed(() => wordCount.value >= MIN_WORDS)
- 
-// Pesan error cuma ditampilin kalau user UDAH mulai ngetik (bukan pas form kosong-kosong aja),
-// biar gak langsung nge-judge user kosongan padahal belum sempat ngetik apa-apa
+const MAX_CHARS = 400   // batas nyata dari Tavily, satuan KARAKTER bukan kata
+
+const isTooShort = computed(() => wordCount.value < MIN_WORDS)
+const isTooLong = computed(() => claimText.value.length > MAX_CHARS)
+const isTextValid = computed(() => !isTooShort.value && !isTooLong.value)
 const showWordCountError = computed(() => claimText.value.trim().length > 0 && !isTextValid.value)
+
+const errorMessage = computed(() => {
+  if (isTooLong.value) {
+    return `Maksimal ${MAX_CHARS} karakter diperbolehkan (saat ini ${claimText.value.length} karakter). Silakan persingkat teksnya.`
+  }
+  if (isTooShort.value) {
+    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kata).`
+  }
+  return ''
+})
 
 function handleSubmit() {
   if (!claimText.value.trim()) return
-  // Cukup emit data ke parent. Parent yang atur kapan loading mulai & selesai.
   emit('submit', claimText.value)
-
 }
 </script>
 
@@ -42,12 +48,13 @@ function handleSubmit() {
     ></textarea>
 
     <p v-if="showWordCountError" class="field-error">
-      Minimal {{ MIN_WORDS }} kata diperlukan (saat ini baru {{ wordCount }} kata).
+      {{ errorMessage }}
     </p>
 
-    <!-- Dibungkus flex-row: counter nempel kiri, tombol nempel kanan -->
     <div class="form-footer">
-      <span class="counter">{{ claimText.length }} / 400 karakter · {{ wordCount }} kata</span>
+      <span class="counter" :class="{ 'counter--error': isTooLong }">
+        {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kata
+      </span>
       <button class="btn-check" :disabled="!isTextValid || isLoading" @click="handleSubmit">
         <ScanSearch :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" /> {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}
       </button>

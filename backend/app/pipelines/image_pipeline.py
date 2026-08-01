@@ -4,7 +4,15 @@ from app.services.groq_stance_gambar_service import classify_text_by_stance
 from app.services.image_similarity_service import verify_image_relevance_per_artikel
 from app.services.klasifikasi_gabungan_service import tentukan_klasifikasi_akhir_dengan_gambar
 from app.utils.penjelasan_helper import build_penjelasan
+from app.utils.url_helper import ensure_url
 
+def ensure_url(url: str) -> str:
+    """Pastikan URL selalu punya prefix https://"""
+    if not url:
+        return '#'
+    if not url.startswith(('http://', 'https://')):
+        return f'https://{url}'
+    return url
 
 def run_image_pipeline(image_url: str, caption: str) -> dict:
     # Step 1: Tavily search TANPA gambar (lebih hemat credit, gambar diambil
@@ -45,7 +53,9 @@ def run_image_pipeline(image_url: str, caption: str) -> dict:
         "alasan_per_artikel": stance_result["alasan_per_artikel"],
         "detail_gambar_per_artikel": image_result["detail_per_artikel"],
         "articles": [
-            {"title": a.get("title", "Tanpa judul"), "url": a.get("url", "#"), "score": round(a.get("score", 0.0), 4)}
+            {"title": a.get("title", "Tanpa judul"), 
+             "url": ensure_url(a.get("url", "")),
+             "score": round(a.get("score", 0.0), 4)}
             for a in berita
         ]
     }

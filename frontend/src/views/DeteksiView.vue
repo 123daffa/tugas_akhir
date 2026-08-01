@@ -13,15 +13,7 @@ const result = ref(null)
 const errorMessage = ref('')
 const isLoading = ref(false)
 
-// Fungsi untuk mapping response backend ke format yang dipakai komponen
 function mapResult(data, type) {
-  const labelMap = {
-  'FAKTA': 'Fakta',
-  'MISLEADING': 'Misleading Content',
-  'FABRICATED': 'Fabricated Content',
-  'FALSE': 'False Content'
-}
-
   const metrics = [
     {
       label: 'Kredibilitas Sumber',
@@ -31,25 +23,28 @@ function mapResult(data, type) {
   ]
 
   return {
-    label: labelMap[data.klasifikasi] || data.klasifikasi,
-    conclusion: data.penjelasan,
+    label: data.klasifikasi,
+    conclusion: data.penjelasan || data.penjelasan_teks || '',
     articles: data.articles || [],
-    jumlah_artikel: data.jumlah_artikel || 0,        
-    kredibilitas_score: data.kredibilitas_score || 0,      
+    jumlah_artikel: data.jumlah_artikel || 0,
+    kredibilitas_score: data.kredibilitas_score || 0,
     metrics,
-    confidence: data.confidence || 0,                          // ← tambah
-    stance_breakdown: data.stance_breakdown || {               // ← tambah
-      MENDUKUNG: 0, MEMBANTAH: 0, TIDAK_RELEVAN: 0
+    confidence: data.confidence || 0,
+    stance_breakdown: data.stance_breakdown || {
+      'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0
     },
-    metrics,
-    similarity_score: data.similarity_score,
-    caption_translated: data.caption_translated,
-    alasan_per_artikel: data.alasan_per_artikel || [], 
-    // ← field gambar, sebelumnya tidak dipetakan sama sekali
+    alasan_per_artikel: data.alasan_per_artikel || [],
+    // field gambar
     image_relevance_score: data.image_relevance_score ?? null,
     penjelasan_gambar: data.penjelasan_gambar || '',
     artikel_gambar_paling_relevan: data.artikel_gambar_paling_relevan || null,
     detail_gambar_per_artikel: data.detail_gambar_per_artikel || [],
+    // field video
+    jumlah_frame: data.jumlah_frame ?? null,
+    video_relevance_score: data.video_relevance_score ?? null,
+    penjelasan_video: data.penjelasan_video || '',
+    artikel_video_paling_relevan: data.artikel_video_paling_relevan || null,
+    detail_video_per_artikel: data.detail_video_per_artikel || [],
     // Simpan raw data kalau butuh debug
     raw: data
   }
@@ -62,13 +57,11 @@ async function handleTextSubmit(text) {
 
   try {
     const response = await checkText(text)
-
     if (response.success) {
       result.value = mapResult(response.data, 'text')
     } else {
       errorMessage.value = response.error
     }
-
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     console.error(err)
@@ -84,13 +77,11 @@ async function handleImageSubmit({ text, image }) {
 
   try {
     const response = await checkImage(image, text)
-
     if (response.success) {
       result.value = mapResult(response.data, 'image')
     } else {
       errorMessage.value = response.error
     }
-
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     console.error(err)
@@ -106,13 +97,11 @@ async function handleVideoSubmit({ text, video }) {
 
   try {
     const response = await checkVideo(video, text)
-
     if (response.success) {
       result.value = mapResult(response.data, 'video')
     } else {
       errorMessage.value = response.error
     }
-
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     console.error(err)
@@ -127,7 +116,6 @@ async function handleVideoSubmit({ text, video }) {
     <DetectionTabs v-model="activeTab" />
 
     <div class="content-grid">
-      <!-- Kolom kiri: form input + hasil analisis -->
       <div class="left-col">
         <TextDetectionForm
           v-if="activeTab === 'teks'"
@@ -162,13 +150,15 @@ async function handleVideoSubmit({ text, video }) {
         />
       </div>
 
-      <!-- Kolom kanan: kartu tingkat keyakinan AI, hanya tampil kalau sudah ada hasil -->
-        <div class="right-col" 
-        v-if="result && result.raw.similarity_score !== undefined">
-          <ConfidenceScore 
-          :similarity_score="result.raw.similarity_score"
-          :caption_translated="result.raw.caption_translated || ''" />
-        </div>
+      <!-- Kolom kanan: khusus hasil video -->
+      <div class="right-col" v-if="result && result.video_relevance_score !== null">
+        <ConfidenceScore
+          :video_relevance_score="result.video_relevance_score"
+          :penjelasan_video="result.penjelasan_video"
+          :artikel_video_paling_relevan="result.artikel_video_paling_relevan"
+          :jumlah_frame="result.jumlah_frame"
+          :detail_video_per_artikel="result.detail_video_per_artikel" />
+      </div>
     </div>
   </div>
 </template>

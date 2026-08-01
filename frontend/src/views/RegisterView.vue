@@ -42,7 +42,7 @@ async function handleRegister() {
   isSubmitting.value = true
   try {
     await authStore.register(form.value.fullName, form.value.email, form.value.password)
-    router.push('/')
+    router.push('/login')
   } catch (err) {
     errorMessage.value = err.response?.data?.message || 'Pendaftaran gagal. Silakan coba lagi.'
   } finally {

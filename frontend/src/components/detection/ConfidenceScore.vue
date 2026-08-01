@@ -1,69 +1,89 @@
 <script setup>
-import {ref, watch, onMounted} from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
- const props = defineProps({
-  label: { type: String, default: '' },
-  similarity_score: { type: Number, required: true },        // contoh: 92
-  caption_translated: {type: String, required: true}
+const props = defineProps({
+  video_relevance_score: { type: Number, required: true },
+  penjelasan_video: { type: String, default: '' },
+  artikel_video_paling_relevan: { type: String, default: null },
+  jumlah_frame: { type: Number, default: null },
+  detail_video_per_artikel: {
+    type: Array,
+    default: () => []
+  }
 })
 
-// Angka yang BENERAN ditampilkan di layar -- mulai dari 0, nanti di-animasikan
-// naik pelan-pelan sampai menyentuh nilai `accuracy` yang asli.
-const displayedAccuracy = ref(0)
- 
+const displayedScore = ref(0)
+
 function animateCountUp(target) {
-  const duration = 1200 // total durasi animasi dalam milidetik (1.2 detik)
+  const duration = 1200
   const startTime = performance.now()
-  const startValue = displayedAccuracy.value
- 
+  const startValue = displayedScore.value
+
   function tick(now) {
     const elapsed = now - startTime
-    const progress = Math.min(elapsed / duration, 1) // 0 -> 1, gak boleh lebih dari 1
- 
-    // Easing "ease-out": animasi cepat di awal, melambat di akhir -- kerasa lebih natural
-    // daripada kecepatan konstan (linear). Rumus umum: 1 - (1-progress)^3
+    const progress = Math.min(elapsed / duration, 1)
     const eased = 1 - Math.pow(1 - progress, 3)
- 
-    displayedAccuracy.value = Math.round(startValue + (target - startValue) * eased)
- 
+
+    displayedScore.value = Math.round(startValue + (target - startValue) * eased)
+
     if (progress < 1) {
-      requestAnimationFrame(tick) // lanjut ke frame berikutnya kalau belum selesai
+      requestAnimationFrame(tick)
     } else {
-      displayedAccuracy.value = target // pastikan berhenti PERSIS di angka final, gak kelebihan/kekurangan
+      displayedScore.value = target
     }
   }
- 
+
   requestAnimationFrame(tick)
 }
- 
-// Animasi jalan pas komponen pertama kali muncul di layar...
+
 onMounted(() => {
-  animateCountUp(Math.round(props.similarity_score * 100))
+  animateCountUp(Math.round(props.video_relevance_score))
 })
- 
-// ...DAN setiap kali prop accuracy berubah (misal user analisis klaim baru,
-// hasil baru masuk, animasinya jalan ulang dari angka lama ke angka baru)
-watch(() => props.similarity_score, (newValue) => {
-  animateCountUp(Math.round(newValue * 100))
+
+watch(() => props.video_relevance_score, (newValue) => {
+  animateCountUp(Math.round(newValue))
 })
 </script>
 
 <template>
   <div class="confidence-card">
-    <h3 class="title">Similarity Score</h3>
-        <!-- Wrapper ini yang nge-center-in lingkaran secara horizontal di dalam card -->
+    <h3 class="title">🎬 Relevansi Video</h3>
     <div class="score">
       <div class="score-circle">
-        <span class="score-number">{{ displayedAccuracy }}%</span>
-        <span class="score-label">Similarity</span>
+        <span class="score-number">{{ displayedScore }}%</span>
+        <span class="score-label">Kemiripan</span>
       </div>
     </div>
 
-     <div v-if="caption_translated" class="translated-caption">
-      <p class="translated-label">Caption (diterjemahkan)</p>
-      <p class="translated-text">"{{ caption_translated }}"</p>
+    <p v-if="penjelasan_video" class="conclusion-text">{{ penjelasan_video }}</p>
+
+    <div v-if="artikel_video_paling_relevan" class="translated-caption">
+      <p class="translated-label">Dibandingkan dengan gambar dari</p>
+      <p class="translated-text">{{ artikel_video_paling_relevan }}</p>
     </div>
 
+    <p v-if="jumlah_frame !== null" class="frame-note">
+      Dianalisis dari {{ jumlah_frame }} frame video.
+    </p>
+
+    <!-- breakdown per artikel, dipindah ke sini dari AnalysisResult.vue -->
+    <div v-if="detail_video_per_artikel.length > 0" class="detail-section">
+      <p class="detail-title">Analisis Video Per Artikel</p>
+      <div class="stance-detail-list">
+        <div
+          v-for="(item, index) in detail_video_per_artikel"
+          :key="index"
+          class="stance-detail-item"
+          :class="item.relevance_score >= 50 ? 'stance-detail-support' : 'stance-detail-against'"
+        >
+          <div class="stance-detail-header">
+            <span class="stance-detail-title">{{ item.judul }}</span>
+            <span class="stance-detail-badge">{{ item.relevance_score.toFixed(0) }}%</span>
+          </div>
+          <p class="stance-detail-reason">{{ item.penjelasan }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -87,19 +107,19 @@ watch(() => props.similarity_score, (newValue) => {
 
 .score {
   display: flex;
-  justify-content: center;  /* center-in lingkaran secara horizontal di card */
+  justify-content: center;
   padding: 12px 0 24px;
 }
- 
+
 .score-circle {
   display: flex;
   flex-direction: column;
-  align-items: center;      /* center horizontal (cross-axis, karena column) */
-  justify-content: center;  /* center vertikal (main-axis) -- ganti padding-top manual */
+  align-items: center;
+  justify-content: center;
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: rgba(253, 251, 251, 0.9); /* biru pucat, alpha 0.9 = ketajaman 90% */
+  background: rgba(253, 251, 251, 0.9);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -114,6 +134,14 @@ watch(() => props.similarity_score, (newValue) => {
   font-size: 15px;
   color: black;
   margin-top: 4px;
+}
+
+.conclusion-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  text-align: left;
+  margin: 0 0 16px;
 }
 
 .translated-caption {
@@ -140,45 +168,79 @@ watch(() => props.similarity_score, (newValue) => {
   line-height: 1.5;
 }
 
-.metric-list {
-  list-style: none;
-  margin: 0;
-  padding: 16px 0 0;
-  /* border-top: 1px solid var(--color-border); */
+.frame-note {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+  margin-top: 12px;
   text-align: left;
 }
 
-.metric-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 13px;
-  padding: 6px 0;
+/* Breakdown per artikel -- style disalin dari AnalysisResult.vue supaya konsisten */
+.detail-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+  text-align: left;
 }
 
-.metric-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-muted);
-}
-
-.metric-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.metric-dot--red {
-  background: var(--color-red);
-}
-
-.metric-dot--orange {
-  background: #f59e0b;
-}
-
-.metric-value {
+.detail-title {
+  font-size: 14px;
   font-weight: 600;
+  color: var(--color-navy);
+  margin: 0 0 10px;
+}
+
+.stance-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stance-detail-item {
+  border-radius: 16px;
+  padding: 12px 14px;
+  border-left: 4px solid;
+}
+
+.stance-detail-support {
+  background: #F0FFF7;
+  border-left-color: #20d48a;
+}
+
+.stance-detail-against {
+  background: #FFF0F0;
+  border-left-color: #ff4d4d;
+}
+
+.stance-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.stance-detail-title {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.stance-detail-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.08);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.stance-detail-reason {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 </style>

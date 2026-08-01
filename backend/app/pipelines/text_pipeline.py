@@ -2,15 +2,7 @@ from app.services.search_service import search_related_news
 from app.services.kredibilitas_service import calculate_kredibilitas_score
 from app.services.groq_stance_service import classify_text_by_stance
 from app.utils.penjelasan_helper import build_penjelasan
-
-
-def ensure_url(url: str) -> str:
-    """Pastikan URL selalu punya prefix https://"""
-    if not url:
-        return '#'
-    if not url.startswith(('http://', 'https://')):
-        return f'https://{url}'
-    return url
+from app.utils.url_helper import ensure_url
 
 def run_text_pipeline(caption: str) -> dict:
 

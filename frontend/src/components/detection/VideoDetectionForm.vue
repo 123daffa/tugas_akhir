@@ -1,9 +1,8 @@
 <script setup>
-import { ref,computed } from 'vue'
+import { ref, computed } from 'vue'
 import FileUploadBox from './FileUploadBox.vue'
 import { ScanSearch } from 'lucide-vue-next';
 
-// isLoading datang dari parent, karena parent yang beneran ngejalanin await API call
 defineProps({
   isLoading: { type: Boolean, default: false }
 })
@@ -15,12 +14,25 @@ const videoFile = ref(null)
 const wordCount = computed(() => {
   return claimText.value.trim().split(/\s+/).filter(Boolean).length
 })
- 
+
 const MIN_WORDS = 10
-const isTextValid = computed(() => wordCount.value >= MIN_WORDS)
+const MAX_CHARS = 400
+
+const isTooShort = computed(() => wordCount.value < MIN_WORDS)
+const isTooLong = computed(() => claimText.value.length > MAX_CHARS)
+const isTextValid = computed(() => !isTooShort.value && !isTooLong.value)
 const showWordCountError = computed(() => claimText.value.trim().length > 0 && !isTextValid.value)
- 
-// Form valid kalau: teks udah cukup kata DAN gambar udah dipilih
+
+const errorMessage = computed(() => {
+  if (isTooLong.value) {
+    return `Maksimal ${MAX_CHARS} karakter diperbolehkan (saat ini ${claimText.value.length} karakter). Silakan persingkat teksnya.`
+  }
+  if (isTooShort.value) {
+    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kata).`
+  }
+  return ''
+})
+
 const isFormValid = computed(() => isTextValid.value && !!videoFile.value)
 
 function onFileSelected(file) {
@@ -46,8 +58,11 @@ function handleSubmit() {
           placeholder="Ketik atau tempel klaim di sini..."
         ></textarea>
         <p v-if="showWordCountError" class="field-error">
-          Minimal {{ MIN_WORDS }} kata diperlukan (saat ini baru {{ wordCount }} kata).
+          {{ errorMessage }}
         </p>
+        <span class="counter" :class="{ 'counter--error': isTooLong }">
+          {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kata
+        </span>
       </div>
       <div class="field">
         <label class="field-label">🎬 Unggah Video</label>
@@ -129,11 +144,23 @@ function handleSubmit() {
 .claim-input--error {
   outline: 1.5px solid var(--color-red);
 }
- 
+
 .field-error {
   font-size: 12px;
   color: var(--color-red);
   margin: 6px 0 0;
+}
+
+.counter {
+  display: block;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 6px;
+}
+
+.counter--error {
+  color: var(--color-red);
+  font-weight: 600;
 }
 
 .btn-check {

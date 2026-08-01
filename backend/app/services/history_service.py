@@ -35,21 +35,55 @@ class HistoryService:
     def save_check_result(user_id, mode, result, input_text=None, caption=None, image_path=None):
         """Simpan hasil pipeline cek teks/gambar/video ke detection_history.
         Dipanggil dari text_routes.py / image_routes.py / video_routes.py
-        SETELAH pipeline berhasil."""
+        SETELAH pipeline berhasil.
+
+        `metrics` menyimpan SELURUH detail breakdown (stance per-artikel, detail
+        gambar/video per-artikel, dst) supaya kalau riwayat ini dibuka lagi nanti,
+        tampilannya bisa selengkap saat pertama kali cek -- bukan cuma ringkasan.
+        """
         if not user_id:
             return None
 
         articles = result.get('articles') or []
         first_article = articles[0] if articles else {}
 
-        # Judul riwayat: dari teks asli (mode text) atau caption (mode image/video)
         raw_title = input_text if mode == 'text' else caption
         title = (raw_title or '').strip()[:100] or f'Cek {mode}'
 
-        # kredibilitas_score dari pipeline biasanya 0.0 - 1.0, kolom `accuracy`
-        # di model berupa Integer (persentase 0-100)
         kredibilitas = result.get('kredibilitas_score', 0) or 0
         accuracy = round(kredibilitas * 100) if kredibilitas <= 1 else round(kredibilitas)
+
+        # Fallback penjelasan: pipeline teks pakai key 'penjelasan',
+        # pipeline gambar/video pakai 'penjelasan_teks' -- tanpa fallback ini,
+        # conclusion akan selalu kosong untuk mode image/video
+        conclusion = result.get('penjelasan') or result.get('penjelasan_teks', '')
+
+        metrics = {
+            'articles': articles,
+            'jumlah_artikel': result.get('jumlah_artikel'),
+            'confidence': result.get('confidence'),
+            'stance_breakdown': result.get('stance_breakdown'),
+            'alasan_per_artikel': result.get('alasan_per_artikel'),
+        }
+
+        # Field khusus gambar -- hanya ada isinya kalau mode == 'image'
+        if mode == 'image':
+            metrics.update({
+                'penjelasan_gambar': result.get('penjelasan_gambar'),
+                'image_relevance_score': result.get('image_relevance_score'),
+                'artikel_gambar_paling_relevan': result.get('artikel_gambar_paling_relevan'),
+                'detail_gambar_per_artikel': result.get('detail_gambar_per_artikel'),
+            })
+
+        # Field khusus video -- hanya ada isinya kalau mode == 'video'
+        if mode == 'video':
+            metrics.update({
+                'jumlah_frame': result.get('jumlah_frame'),
+                'penjelasan_video': result.get('penjelasan_video'),
+                'video_relevance_score': result.get('video_relevance_score'),
+                'artikel_video_paling_relevan': result.get('artikel_video_paling_relevan'),
+                'detail_video_per_artikel': result.get('detail_video_per_artikel'),
+            })
 
         return DetectionRepository.create(
             user_id=user_id,
@@ -57,15 +91,10 @@ class HistoryService:
             title=title,
             category=result.get('klasifikasi', 'Tidak diketahui'),
             accuracy=accuracy,
-            conclusion=result.get('penjelasan', ''),
+            conclusion=conclusion,
             input_text=input_text if mode == 'text' else None,
             image_path=image_path,
             source_title=first_article.get('title'),
             source_url=first_article.get('url'),
-            metrics={
-                'articles': articles,
-                'jumlah_artikel': result.get('jumlah_artikel'),
-                'similarity_score': result.get('similarity_score'),
-                'caption_translated': result.get('caption_translated'),
-            }
+            metrics=metrics
         )

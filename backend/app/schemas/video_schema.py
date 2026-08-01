@@ -1,17 +1,20 @@
 from dataclasses import dataclass, asdict, field
-from typing import List
+from typing import List, Optional
 
 @dataclass
 class VideoCheckResponse:
-    similarity_score: float
-    similarity_per_frame: List[float]
-    jumlah_frame_dianalisis: int
-    caption_translated: str
+    jumlah_frame: int
     jumlah_artikel: int
-    rata_rata_score: float
     kredibilitas_score: float
-    penjelasan: str
     klasifikasi: str
+    confidence: float
+    video_relevance_score: float
+    penjelasan_teks: str
+    penjelasan_video: str
+    artikel_video_paling_relevan: Optional[str] = None
+    stance_breakdown: dict = field(default_factory=dict)
+    alasan_per_artikel: List[dict] = field(default_factory=list)
+    detail_video_per_artikel: List[dict] = field(default_factory=list)
     articles: List[dict] = field(default_factory=list)
 
     def to_dict(self):

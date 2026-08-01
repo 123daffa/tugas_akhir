@@ -84,7 +84,7 @@ const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabrica
 
     <div class="section">
       <div class="section-title">
-        <span class="dot">✨</span> Kesimpulan Groq AI
+        <span class="dot">✨</span> Kesimpulan Klasifikasi
       </div>
       <p class="conclusion-text">{{ penjelasan }}</p>
     </div>

@@ -40,7 +40,7 @@ const router = createRouter({
       path: '/riwayat/:id',
       name: 'riwayat_detail',
       component: RiwayatDetailView,
-      meta: {requiresAuth: true}
+      meta: {requiresAuth: true, hideLayout: true}
     },
     {
       path: '/login',
@@ -84,6 +84,7 @@ const router = createRouter({
           path: 'history',
           name: 'admin_history',
           component: AdminHistoryView,
+          meta: { hideLayout: true}
         },
       ],
     },

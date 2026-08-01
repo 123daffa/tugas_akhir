@@ -1,10 +1,7 @@
 import base64
 from io import BytesIO
 from PIL import Image
-
-MAX_DIMENSION = 512  # resize gambar biar hemat ukuran, cukup untuk perbandingan CLIP
-JPEG_QUALITY = 70
-
+from app.core.constants import MAX_DIMENSION, JPEG_QUALITY
 
 def _compress_image_bytes(image_bytes: bytes) -> bytes:
     """

@@ -5,9 +5,9 @@ from app.schemas.video_schema import VideoCheckResponse
 from app.schemas.common_schema import ErrorResponse
 from app.services.history_service import HistoryService
 from app.services.storage_service import upload_pil_image
-from app.services.frame_extraction_service import extract_keyframes
 
 video_bp = Blueprint("video", __name__)
+
 
 @video_bp.route("/check/video", methods=["POST"])
 @jwt_required()
@@ -35,24 +35,25 @@ def check_video():
     try:
         video_bytes = video_file.read()
         result = run_video_pipeline(video_bytes, caption)
+        first_frame = result.pop("_first_frame", None)  
         response = VideoCheckResponse(**result)
 
         user_id = get_jwt_identity()
-        
+
         image_path = None
-        try:
-            first_frame = extract_keyframes(video_bytes, max_frames=1)[0]
-            image_path = upload_pil_image(first_frame, folder="videos")
-        except Exception as e:
-            print(f"[WARNING] gagal ambil/upload frame pertama video: {e}")
+        if first_frame is not None:
+            try:
+                image_path = upload_pil_image(first_frame, folder="videos")
+            except Exception as e:
+                print(f"[WARNING] gagal upload frame pertama video: {e}")
 
         try:
             HistoryService.save_check_result(
-                user_id, mode="image", result=result, caption=caption, image_path=image_path
+                user_id, mode="video", result=result, caption=caption, image_path=image_path
             )
         except Exception as e:
-            print(f"[WARNING] gagal simpan history (image): {e}")
-                
+            print(f"[WARNING] gagal simpan history (video): {e}")
+
         return jsonify(response.to_dict()), 200
 
     except Exception as e:

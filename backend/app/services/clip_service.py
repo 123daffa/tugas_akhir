@@ -52,3 +52,34 @@ def compute_image_similarity(user_image_source: str, reference_image_urls: list)
             best_score = score
 
     return round(best_score, 4) if best_score is not None else 0.0
+
+
+def encode_frames(frames: list):
+    """Precompute embedding untuk semua frame SEKALI SAJA, dipakai ulang
+    untuk perbandingan terhadap gambar referensi artikel manapun."""
+    return [clip_handler.get_image_embedding(f) for f in frames]
+
+
+def compute_video_similarity_from_embeddings(frame_embeddings: list, reference_image_urls: list) -> float:
+    """Sama seperti compute_video_similarity, tapi menerima embedding frame
+    yang SUDAH dihitung sebelumnya (bukan raw frame), supaya tidak di-encode
+    ulang untuk tiap artikel."""
+    reference_images = []
+    for ref_url in reference_image_urls[:5]:
+        ref_img = _load_image(ref_url)
+        if ref_img is not None:
+            reference_images.append(ref_img)
+
+    if not reference_images or not frame_embeddings:
+        return 0.0
+
+    ref_embeddings = [clip_handler.get_image_embedding(r) for r in reference_images]
+
+    best_score = None
+    for f_emb in frame_embeddings:
+        for r_emb in ref_embeddings:
+            score = (f_emb @ r_emb.T).item()
+            if best_score is None or score > best_score:
+                best_score = score
+
+    return round(best_score, 4) if best_score is not None else 0.0

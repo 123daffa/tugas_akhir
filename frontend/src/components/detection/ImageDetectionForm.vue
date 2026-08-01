@@ -17,8 +17,22 @@ const wordCount = computed(() => {
 })
  
 const MIN_WORDS = 10
-const isTextValid = computed(() => wordCount.value >= MIN_WORDS)
+const MAX_CHARS = 400
+
+const isTooShort = computed(() => wordCount.value < MIN_WORDS)
+const isTooLong = computed(() => claimText.value.length > MAX_CHARS)
+const isTextValid = computed(() => !isTooShort.value && !isTooLong.value)
 const showWordCountError = computed(() => claimText.value.trim().length > 0 && !isTextValid.value)
+
+const errorMessage = computed(() => {
+  if (isTooLong.value) {
+    return `Maksimal ${MAX_CHARS} karakter diperbolehkan (saat ini ${claimText.value.length} karakter). Silakan persingkat teksnya.`
+  }
+  if (isTooShort.value) {
+    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kata).`
+  }
+  return ''
+})
  
 // Form valid kalau: teks udah cukup kata DAN gambar udah dipilih
 const isFormValid = computed(() => isTextValid.value && !!imageFile.value)
@@ -46,8 +60,11 @@ function handleSubmit() {
           placeholder="Ketik atau tempel klaim di sini..."
         ></textarea>
         <p v-if="showWordCountError" class="field-error">
-          Minimal {{ MIN_WORDS }} kata diperlukan (saat ini baru {{ wordCount }} kata).
+          {{ errorMessage }}
         </p>
+        <span class="counter" :class="{ 'counter--error': isTooLong }">
+          {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kata
+        </span>
       </div>
       <div class="field">
         <label class="field-label">🖼 Unggah Gambar Pendukung</label>

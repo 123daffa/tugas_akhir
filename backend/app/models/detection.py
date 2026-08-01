@@ -29,13 +29,26 @@ class DetectionHistory(db.Model):
 
     def to_detail_dict(self):
         data = self.to_list_dict()
+        metrics = self.metrics or {}
 
-        # Semua artikel sumber pembanding tersimpan lengkap di kolom metrics
-        # (bukan cuma yang pertama seperti source_title/source_url di bawah)
-        all_sources = (self.metrics or {}).get('articles', []) if self.metrics else []
         data.update({
-            'accuracy': self.accuracy, 'conclusion': self.conclusion,
+            'mode': self.mode,  # mode mentah ('text'/'image'/'video'), untuk kondisi tampilan
+            'accuracy': self.accuracy,
+            'conclusion': self.conclusion,
             'source': {'title': self.source_title or '', 'url': self.source_url or '#'},
-            'metrics': self.metrics or []
+            'articles': metrics.get('articles', []),
+            'jumlah_artikel': metrics.get('jumlah_artikel'),
+            'confidence': metrics.get('confidence'),
+            'stance_breakdown': metrics.get('stance_breakdown', {}),
+            'alasan_per_artikel': metrics.get('alasan_per_artikel', []),
+            'penjelasan_gambar': metrics.get('penjelasan_gambar'),
+            'image_relevance_score': metrics.get('image_relevance_score'),
+            'artikel_gambar_paling_relevan': metrics.get('artikel_gambar_paling_relevan'),
+            'detail_gambar_per_artikel': metrics.get('detail_gambar_per_artikel', []),
+            'jumlah_frame': metrics.get('jumlah_frame'),
+            'penjelasan_video': metrics.get('penjelasan_video'),
+            'video_relevance_score': metrics.get('video_relevance_score'),
+            'artikel_video_paling_relevan': metrics.get('artikel_video_paling_relevan'),
+            'detail_video_per_artikel': metrics.get('detail_video_per_artikel', []),
         })
         return data

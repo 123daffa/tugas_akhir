@@ -2,10 +2,10 @@ import json
 from groq import Groq
 from app.core.config import settings
 from app.core.constants import GROQ_MODEL_NAME
+from app.services.prompt_klasifikasi_artikel import build_prompt_klasifikasi
+from app.core.constants import KATEGORI_VALID
 
 groq_client = Groq(api_key=settings.GROQ_API_KEY)
-
-KATEGORI_VALID = {"Fakta", "False Content", "Misleading Content", "Fabricated Content"}
 
 # Urutan prioritas tie-break kalau ada 2+ kategori dengan jumlah suara sama-sama
 # tertinggi. "Fakta" sengaja diletakkan PALING TERAKHIR -- kesimpulan positif
@@ -21,51 +21,7 @@ def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
     SATU artikel per panggilan, bukan gabungan sekaligus."""
     title = article.get("title", "Tanpa judul")
     snippet = article.get("content", "")[:500]
-
-    prompt = f"""Kamu adalah asisten fact-checking. Bandingkan klaim berikut
-dengan isi artikel berita, lalu klasifikasikan ke SALAH SATU dari 4 kategori.
-
-KLAIM: {claim}
-
-ARTIKEL:
-Judul: {title}
-Cuplikan: {snippet}
-
-PENTING -- perhatikan pola ini sebelum memutuskan, ikuti urutan prioritas berikut:
-
-PRIORITAS 1 -- Cek dulu apakah klaim berbentuk SEBAB-AKIBAT (mengandung kata
-"karena", "sehingga", "akibatnya", "makanya", dsb, yang menghubungkan sebuah
-ALASAN dengan sebuah KESIMPULAN/TINDAKAN). Kalau ya, kamu WAJIB menilai
-KESIMPULAN/TINDAKAN-nya secara terpisah dari alasannya -- JANGAN menyimpulkan
-klaim "Fakta" hanya karena bagian ALASANNYA benar. Contoh: klaim "X bebas
-hukuman KARENA barang bukti palsu" punya dua bagian: (a) barang bukti palsu,
-dan (b) X bebas hukuman. Kalau artikel cuma mengonfirmasi (a) tapi TIDAK
-mengonfirmasi/malah membantah (b), klaim keseluruhan TIDAK BOLEH "Fakta" --
-paling tepat "Misleading Content" (sebagian benar, tapi kesimpulannya salah/
-menyesatkan) atau "False Content" (kalau kesimpulannya jelas dibantah).
-
-PRIORITAS 2 -- Kalau judul artikel mengandung tag DEBUNKING EKSPLISIT seperti
-"[SALAH]", "[HOAKS]", "Cek Fakta:", "Keliru:", "Klarifikasi:", "Hoaks,"/"Hoaks:",
-itu adalah VONIS bahwa SELURUH NARASI dalam klaim (termasuk kesimpulan sebab-
-akibatnya, bukan cuma detail kecil di dalamnya) tidak benar/menyesatkan. Tag
-ini MENGALAHKAN kecocokan substansi parsial -- jangan biarkan kecocokan
-sebagian fakta (Prioritas 3) membuatmu mengabaikan vonis tag ini.
-
-PRIORITAS 3 -- Kalau tidak ada tag debunking dan klaim bukan sebab-akibat:
-"Fakta" tidak mengharuskan kata-kata persis sama, cukup substansi/inti klaim
-didukung isi artikel. "False Content" kalau bertentangan atau inti klaim sama
-sekali tidak dibahas.
-
-PRIORITAS 4 -- Sebelum menjawab, pastikan ALASAN yang kamu tulis konsisten
-dengan kategori yang dipilih dan merujuk ke ISI artikel (bukan cuma judul).
-
-Pilih SATU kategori:
-- Fakta: substansi/inti klaim (termasuk kesimpulan sebab-akibatnya kalau ada) didukung oleh isi artikel
-- False Content: klaim bertentangan dengan isi artikel, atau inti klaim sama sekali tidak dibahas
-- Misleading Content: sebagian klaim benar, tapi kesimpulan/konteksnya menyesatkan
-- Fabricated Content: klaim sepenuhnya dikarang / tidak berdasar dari kejadian nyata manapun
-
-Jawab HANYA JSON: {{"klasifikasi": "Fakta"/"False Content"/"Misleading Content"/"Fabricated Content", "alasan": "..."}}"""
+    prompt = build_prompt_klasifikasi(claim, title, snippet)
 
     try:
         response = groq_client.chat.completions.create(

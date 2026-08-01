@@ -42,7 +42,6 @@ const typeIconMap = {
       <p>Memuat riwayat...</p>
     </div>
 
-    <!-- Kondisi: data ditemukan -->
     <div v-if="item">
       <div class="detail-meta">
         <span class="meta-item">📅 {{ item.date }}</span>
@@ -60,21 +59,30 @@ const typeIconMap = {
           <AnalysisResult
             :label="item.category"
             :conclusion="item.conclusion"
-            :articles="item.sources"
-            :jumlah_artikel="item.metrics?.jumlah_artikel ?? item.sources.length"
+            :articles="item.articles || []"
+            :jumlah_artikel="item.jumlah_artikel ?? (item.articles || []).length"
             :kredibilitas_score="item.accuracy / 100"
+            :confidence="item.confidence || 0"
+            :stance_breakdown="item.stance_breakdown"
+            :alasan_per_artikel="item.alasan_per_artikel || []"
+            :image_relevance_score="item.image_relevance_score ?? null"
+            :penjelasan_gambar="item.penjelasan_gambar || ''"
+            :artikel_gambar_paling_relevan="item.artikel_gambar_paling_relevan"
+            :detail_gambar_per_artikel="item.detail_gambar_per_artikel || []"
           />
         </div>
-        <div class="right-col" v-if="item.type !== 'Teks' && item.metrics?.similarity_score != null">
+        <div class="right-col" v-if="item.mode === 'video' && item.video_relevance_score != null">
           <ConfidenceScore
-            :similarity_score="item.metrics.similarity_score"
-            :caption_translated="item.metrics.caption_translated || ''"
+            :video_relevance_score="item.video_relevance_score"
+            :penjelasan_video="item.penjelasan_video || ''"
+            :artikel_video_paling_relevan="item.artikel_video_paling_relevan"
+            :jumlah_frame="item.jumlah_frame"
+            :detail_video_per_artikel="item.detail_video_per_artikel || []"
           />
         </div>
       </div>
     </div>
 
-    <!-- Kondisi: id gak ketemu di data (misal salah ketik URL, atau data udah dihapus) -->
     <div v-else class="not-found">
       <p>Riwayat dengan ID ini tidak ditemukan.</p>
       <RouterLink to="/riwayat" class="btn-back"> <MoveLeft :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />Kembali ke Riwayat</RouterLink>
