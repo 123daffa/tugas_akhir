@@ -48,8 +48,8 @@ dengan kategori yang dipilih dan merujuk ke ISI artikel (bukan cuma judul).
 
 Pilih SATU kategori:
 - Fakta: substansi/inti klaim (termasuk kesimpulan sebab-akibatnya kalau ada) didukung oleh isi artikel
-- False Content: klaim bertentangan dengan isi artikel, atau inti klaim sama sekali tidak dibahas
+- False Content: klaim sepenuhnya dikarang / tidak berdasar dari kejadian nyata manapun
 - Misleading Content: sebagian klaim benar, tapi kesimpulan/konteksnya menyesatkan
-- Fabricated Content: klaim sepenuhnya dikarang / tidak berdasar dari kejadian nyata manapun
+- Fabricated Content: klaim bertentangan dengan isi artikel, atau inti klaim sama sekali tidak dibahas klaim sepenuhnya dikarang / tidak berdasar dari kejadian nyata manapun
 
 Jawab HANYA JSON: {{"klasifikasi": "Fakta"/"False Content"/"Misleading Content"/"Fabricated Content", "alasan": "..."}}"""

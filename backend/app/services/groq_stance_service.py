@@ -20,7 +20,7 @@ def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
     Groq langsung memutuskan salah satu dari 4 kategori final -- dinilai
     SATU artikel per panggilan, bukan gabungan sekaligus."""
     title = article.get("title", "Tanpa judul")
-    snippet = article.get("content", "")[:500]
+    snippet = article.get("content", "")[:1000]
     prompt = build_prompt_klasifikasi(claim, title, snippet)
 
     try:

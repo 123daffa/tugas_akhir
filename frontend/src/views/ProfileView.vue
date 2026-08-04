@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
 import { MoveLeft } from 'lucide-vue-next';
+import { showSuccess, showConfirm, showError } from '../utils/alert'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,7 +18,7 @@ const user = computed(() => authStore.user || { fullName: '', email: '', joinedA
 const stats = ref([
   { label: 'Total Deteksi', value: 0, highlight: true },
   { label: 'Fakta', value: 0 },
-  { label: 'False', value: 7 },
+  { label: 'False', value: 0 },
   { label: 'Misleading', value: 0 },
   { label: 'Fabricated', value: 0 }
 ])
@@ -58,9 +59,10 @@ const isProfileFormValid = computed(() => {
   return (
     profileForm.value.fullName.trim().length > 0 &&
     profileForm.value.email.trim().length > 0 &&
-    profileForm.value.email.includes('@')
+    profileForm.value.email.trim().endsWith('@gmail.com')
   )
 })
+
 
 function startEditingProfile() {
   profileForm.value = { fullName: user.value.fullName, email: user.value.email }
@@ -83,8 +85,10 @@ async function saveProfile() {
     authStore.setUser(data) // update data user di store, langsung ke-reflect di Navbar dll
     isEditingProfile.value = false
     profileMessage.value = 'Profil berhasil diperbarui.'
+    showSuccess('Profil berhasil diperbarui.')
   } catch (err) {
     profileMessage.value = err.response?.data?.message || 'Gagal menyimpan perubahan. Silakan coba lagi.'
+    showError(message, 'Gagal Memperbarui Profil')
   } finally {
     isSavingProfile.value = false
   }
@@ -103,6 +107,10 @@ const passwordMismatch = computed(() => {
     passwordForm.value.confirmPassword.length > 0 &&
     passwordForm.value.newPassword !== passwordForm.value.confirmPassword
   )
+})
+
+const newPasswordTooShort = computed(() => {
+  return passwordForm.value.newPassword.length > 0 && passwordForm.value.newPassword.length < 8
 })
 
 const isPasswordFormValid = computed(() => {
@@ -135,16 +143,27 @@ async function savePassword() {
     })
     isChangingPassword.value = false
     passwordMessage.value = 'Password berhasil diubah.'
+    showSuccess('Password berhasil diubah.')
   } catch (err) {
     // Contoh: kalau backend bilang password lama salah
     passwordError.value = err.response?.data?.message ||'Password lama tidak sesuai.'
+    passwordMessage.value = message || 'Gagal mengubah password. Silakan coba lagi.'
+    showError(message, 'Gagal Mengubah Password')
   } finally {
     isSavingPassword.value = false
   }
 }
 
-function handleLogout() {
+async function handleLogout() {
+  const confirmed = await showConfirm(
+    'Kamu akan keluar dari akun ini.',
+    'Keluar dari Akun?',
+    'Iya, Keluar'
+  )
+  if (!confirmed) return
+
   authStore.logout()
+  showSuccess('Berhasil keluar dari akun.')
   router.push('/login')
 }
 </script>
@@ -218,6 +237,7 @@ function handleLogout() {
           :class="{ 'input-error': !profileForm.email.trim() }"
           />
            <p v-if="!profileForm.email.trim()" class="field-error">Email tidak boleh kosong.</p>
+           <p v-else-if="emailInvalidDomain" class="field-error">Email harus menggunakan domain @gmail.com.</p>
         </div>
         <div class="edit-actions">
           <button type="button" class="btn-cancel" @click="cancelEditingProfile">Batal</button>
@@ -248,6 +268,7 @@ function handleLogout() {
           <div class="form-field">
             <label for="newPassword">Password Baru</label>
             <input id="newPassword" v-model="passwordForm.newPassword" type="password" placeholder="Minimal 8 karakter" autocomplete="new-password" />
+            <p v-if="newPasswordTooShort" class="field-error">Password minimal 8 karakter.</p>
           </div>
           <div class="form-field">
             <label for="confirmPassword">Konfirmasi Password Baru</label>
@@ -522,7 +543,7 @@ function handleLogout() {
 
 .field-error {
   font-size: 11px;
-  color: var(--color-red);
+  color: red;
   margin: 6px 0 0;
 }
 
@@ -589,7 +610,7 @@ function handleLogout() {
 }
 
 .btn-logout:hover {
-  background: var(--color-red);
-  color: #0f6b52;
+  background: #0f6b52;
+  color: white;
 }
 </style>

@@ -3,14 +3,23 @@ import { ref } from 'vue'
 import { RouterLink, useRouter} from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { House, ShieldAlert, GalleryVerticalEnd, UserPen, LogOut } from 'lucide-vue-next';
+import { showSuccess, showConfirm } from '../../utils/alert'
 
 const menuOpen = ref(false)
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-function handleLogout() {
+async function handleLogout() {
+  const confirmed = await showConfirm(
+    'Kamu akan keluar dari akun ini.',
+    'Keluar dari Akun?',
+    'Iya, Keluar'
+  )
+  if (!confirmed) return
+
   authStore.logout()
+  showSuccess('Berhasil keluar dari akun.')
   router.push('/login')
 }
 </script>

@@ -13,7 +13,7 @@ const wordCount = computed(() => {
   return claimText.value.trim().split(/\s+/).filter(Boolean).length
 })
 
-const MIN_WORDS = 10
+const MIN_WORDS = 8
 const MAX_CHARS = 400   // batas nyata dari Tavily, satuan KARAKTER bukan kata
 
 const isTooShort = computed(() => wordCount.value < MIN_WORDS)
@@ -26,7 +26,7 @@ const errorMessage = computed(() => {
     return `Maksimal ${MAX_CHARS} karakter diperbolehkan (saat ini ${claimText.value.length} karakter). Silakan persingkat teksnya.`
   }
   if (isTooShort.value) {
-    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kata).`
+    return `Minimal ${MIN_WORDS} kalimat (saat ini baru ${wordCount.value} kalimat).`
   }
   return ''
 })

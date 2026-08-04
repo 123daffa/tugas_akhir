@@ -12,7 +12,7 @@
       untuk memberikan klarifikasi yang transparan dan akurat.</p>
       <div class="btn-group">
           <RouterLink to="/deteksi" class="btn-mulai">Mulai Periksa Klaim</RouterLink>
-          <RouterLink to="/tentang" class="btn-tentang">Bagaimana cara kerjanya?</RouterLink>
+          <!-- <RouterLink to="/tentang" class="btn-tentang">Bagaimana cara kerjanya?</RouterLink> -->
       </div>
       <div class="home-claim">
         <ul class="home-claim-list">

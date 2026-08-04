@@ -7,6 +7,7 @@ import VideoDetectionForm from '../components/detection/VideoDetectionForm.vue'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
 import { checkText, checkImage, checkVideo } from '../services/hoaxDetectionService'
+import { showSuccess, showError } from '../utils/alert'
 
 const activeTab = ref('teks')
 const result = ref(null)
@@ -59,11 +60,14 @@ async function handleTextSubmit(text) {
     const response = await checkText(text)
     if (response.success) {
       result.value = mapResult(response.data, 'text')
+      showSuccess('Analisis teks selesai! Hasil sudah siap.')
     } else {
       errorMessage.value = response.error
+      showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
   } finally {
     isLoading.value = false
@@ -79,11 +83,14 @@ async function handleImageSubmit({ text, image }) {
     const response = await checkImage(image, text)
     if (response.success) {
       result.value = mapResult(response.data, 'image')
+      showSuccess('Analisis gambar selesai! Hasil sudah siap.')
     } else {
       errorMessage.value = response.error
+      showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
   } finally {
     isLoading.value = false
@@ -99,11 +106,14 @@ async function handleVideoSubmit({ text, video }) {
     const response = await checkVideo(video, text)
     if (response.success) {
       result.value = mapResult(response.data, 'video')
+      showSuccess('Analisis video selesai! Hasil sudah siap.')
     } else {
       errorMessage.value = response.error
+      showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
+    showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
   } finally {
     isLoading.value = false

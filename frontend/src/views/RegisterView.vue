@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { ShieldUser, Eye, EyeOff, Lock, Mail, UserPen } from 'lucide-vue-next';
+import { showSuccessRegis, showError } from '../utils/alert'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -25,15 +26,24 @@ const errorMessage = ref('')
 const isFormValid = computed(() => {
   return (
     form.value.fullName.trim() &&
-    form.value.email.trim() &&
+    form.value.email.trim().endsWith('@gmail.com') &&
     form.value.password.length >= 8 &&
     form.value.password === form.value.confirmPassword &&
     agreeTerms.value
   )
 })
 
+const emailInvalidDomain = computed(() => {
+  const email = form.value.email.trim()
+  return email.length > 0 && !email.endsWith('@gmail.com')
+})
+
 const passwordMismatch = computed(() => {
   return form.value.confirmPassword.length > 0 && form.value.password !== form.value.confirmPassword
+})
+
+const passwordTooShort = computed(() => {
+  return form.value.password.length > 0 && form.value.password.length < 8
 })
 
 async function handleRegister() {
@@ -42,9 +52,11 @@ async function handleRegister() {
   isSubmitting.value = true
   try {
     await authStore.register(form.value.fullName, form.value.email, form.value.password)
+    showSuccessRegis('Pendaftaran berhasil, mengalihkan ke halaman login...')
     router.push('/login')
   } catch (err) {
     errorMessage.value = err.response?.data?.message || 'Pendaftaran gagal. Silakan coba lagi.'
+    showError(errorMessage.value, 'Pendaftaran Gagal')
   } finally {
     isSubmitting.value = false
   }
@@ -86,6 +98,7 @@ async function handleRegister() {
               autocomplete="email"
             />
           </div>
+          <p v-if="emailInvalidDomain" class="field-error">Email harus menggunakan domain @gmail.com.</p>
         </div>
 
         <div class="form-field">
@@ -122,6 +135,7 @@ async function handleRegister() {
                 <Eye v-else :size="18" />
             </button>
           </div>
+          <p v-if="passwordTooShort" class="field-error">Kata sandi minimal 8 karakter.</p>
           <p v-if="passwordMismatch" class="field-error">Kata sandi tidak cocok.</p>
         </div>
 

@@ -5,6 +5,7 @@ import api from '../services/api'
 import { Trash2, Eye } from 'lucide-vue-next'
 import ConfirmDialog from '../components/admin/ConfirmDialog.vue'
 import Pagination from '../components/riwayat/PaginationBar.vue'
+import { showSuccess } from '../utils/alert'
 
 const CATEGORY_CLASS = {
   'Fakta': 'badge--fakta',
@@ -62,12 +63,10 @@ function openDeleteConfirm(item) {
 async function handleDeleteConfirm() {
   try {
     await api.delete(`/api/admin/content/${itemToDelete.value.id}`)
-
     showConfirmDialog.value = false
     itemToDelete.value = null
-
     await loadHistory(currentPage.value)
-
+    showSuccess('Riwayat Berhasil Dihapus.')
   } catch (err) {
     console.error('Gagal menghapus riwayat:', err)
   }

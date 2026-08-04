@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { Eye,EyeOff } from 'lucide-vue-next';
-
+import { showSuccess, showError } from '../utils/alert'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -16,7 +16,13 @@ const showPassword = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref('')
 
-const isFormValid = computed(() => form.value.email.trim() && form.value.password.length > 0)
+const isFormValid = computed(() => form.value.email.trim().endsWith('@gmail.com') && form.value.password.length > 0)
+const passwordTooShort = computed(() => form.value.password.length > 0 && form.value.password.length <= 8)
+
+const emailInvalidDomain = computed(() => {
+  const email = form.value.email.trim()
+  return email.length > 0 && !email.endsWith('@gmail.com')
+})
 
 async function handleLogin() {
   if (!isFormValid.value) return
@@ -24,7 +30,7 @@ async function handleLogin() {
   isSubmitting.value = true
    try {
     await authStore.login(form.value.email, form.value.password)
-
+    showSuccess('Login berhasil, mengalihkan ke halaman utama...')
    if (authStore.isAdmin) {
       router.replace('/admin')
     } else {
@@ -33,8 +39,8 @@ async function handleLogin() {
 
   } catch (err) {
     errorMessage.value =
-      err.response?.data?.message ||
-      'Tidak dapat terhubung ke server. Coba lagi nanti.'
+      err.response?.data?.message ||'Tidak dapat terhubung ke server. Coba lagi nanti.'
+      showError(errorMessage.value, 'Login Gagal')
   } finally {
     isSubmitting.value = false
   }
@@ -64,6 +70,7 @@ async function handleLogin() {
                 autocomplete="email"
               />
             </div>
+            <p v-if="emailInvalidDomain" class="field-hint">Email harus menggunakan domain @gmail.com.</p>
           </div>
 
           <div class="form-field">
@@ -81,13 +88,12 @@ async function handleLogin() {
                 <Eye v-else :size="18" />
               </button>
             </div>
+             <p v-if="passwordTooShort" class="field-hint">Password minimal 8 karakter</p>
           </div>
 
           <div class="form-options">
             <RouterLink to="/lupa_password" class="forgot-link">Lupa Password?</RouterLink>
           </div>
-
-          <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
 
           <button type="submit" class="btn-submit" :disabled="!isFormValid || isSubmitting">
             {{ isSubmitting ? 'Memproses...' : 'Masuk' }}
@@ -253,7 +259,7 @@ async function handleLogin() {
   text-decoration: underline;
 }
 
-.form-error {
+.field-hint {
   font-size: 12px;
   color: #ff4d4d;
   margin: 0;
