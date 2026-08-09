@@ -1,0 +1,33 @@
+# Jalankan terpisah dari frontend/docker-compose.yml. Supaya frontend
+# (nginx proxy) tetap bisa menjangkau backend lewat nama service ('backend'),
+# keduanya join ke network eksternal yang sama -- WAJIB dibuat manual
+# SEKALI sebelum menjalankan compose file ini maupun frontend:
+#
+#   docker network create factcheck-network
+#
+# Kalau backend & frontend akan di-deploy di SERVER TERPISAH (bukan satu
+# mesin), network eksternal ini tidak relevan -- lihat catatan di
+# frontend/nginx.conf soal proxy_pass yang perlu diganti ke domain/IP asli.
+
+services:
+  backend:
+    build: .
+    container_name: factcheck-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      # Cache model CLIP -- supaya tidak diunduh ulang (~350MB) setiap
+      # kali container dibuat ulang.
+      - clip-model-cache:/root/.cache/huggingface
+    networks:
+      - factcheck-network
+
+networks:
+  factcheck-network:
+    external: true
+
+volumes:
+  clip-model-cache:
