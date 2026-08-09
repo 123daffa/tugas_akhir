@@ -2,7 +2,7 @@
 import { RouterLink, useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import { LayoutDashboard, Users, History, LogOut, ShieldCheck } from 'lucide-vue-next'
-import { showSuccess, showConfirm} from '../utils/alert'
+import { showSuccess, showConfirm} from '../../utils/alert'
 
 const router = useRouter()
 const authStore = useAuthStore()

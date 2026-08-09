@@ -24,6 +24,12 @@ def create_app(env_name=None):
     # 50MB untuk video, 10MB untuk gambar
     app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB
 
+    
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+        'pool_pre_ping': True, # tes koneksi sebelum digunakan
+        'pool_recycle': 280, # waktu dalam detik sebelum koneksi di-recycle (misalnya 280 detik)
+    }
+
     # CORS untuk Vue.js frontend
     CORS(app, origins=["http://localhost:5173"])
     # CORS(app, origins=["216.198.79.1"])

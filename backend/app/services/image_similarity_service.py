@@ -10,7 +10,7 @@ def _normalize_to_percentage(raw_similarity: float) -> float:
     return round(max(0.0, min(100.0, normalized)), 2)
 
 
-def verify_image_relevance_per_artikel(image_url: str, selected_articles: list) -> dict:
+def verify_image_relevance_per_artikel(user_image, selected_articles: list) -> dict:
     """
     Similarity gambar user vs gambar tiap artikel, MURNI pakai CLIP (lokal,
     tanpa panggilan LLM/API eksternal sama sekali untuk gambar). Weighted
@@ -28,7 +28,7 @@ def verify_image_relevance_per_artikel(image_url: str, selected_articles: list) 
             continue
 
         print(f"[INFO] Cek gambar artikel: {article.get('title', 'Tanpa judul')} ({len(gambar_artikel)} gambar kandidat)")
-        raw_similarity = compute_image_similarity(image_url, gambar_artikel)
+        raw_similarity = compute_image_similarity(user_image, gambar_artikel)
         skor_persen = _normalize_to_percentage(raw_similarity)
         weight = article.get("score", 0.5)
 

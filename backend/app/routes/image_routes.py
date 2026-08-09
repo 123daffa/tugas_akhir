@@ -1,4 +1,6 @@
 from flask import Blueprint, request, jsonify
+from PIL import Image
+from io import BytesIO
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.pipelines.image_pipeline import run_image_pipeline
 from app.schemas.image_schema import ImageCheckResponse
@@ -31,9 +33,9 @@ def check_image():
         image_bytes = image_file.read()
         extension = filename.rsplit(".", 1)[-1]
 
-        image_data_uri = compress_image_to_data_uri(image_bytes)
+        user_image = Image.open(BytesIO(image_bytes)).convert("RGB")
 
-        result = run_image_pipeline(image_data_uri, caption)
+        result = run_image_pipeline(user_image, caption)
         response = ImageCheckResponse(**result)
 
         user_id = get_jwt_identity()

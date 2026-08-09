@@ -10,11 +10,13 @@ KATEGORI_VALID = {"Fakta", "False Content", "Misleading Content", "Fabricated Co
 TAVILY_MAX_RESULTS = 10
 TAVILY_SEARCH_DEPTH = "advanced"
 TAVILY_TOPIC = "news"
+TAVILY_EXCLUDE_DOMAINS = ["https://www.instagram.com/", "https://www.facebook.com/", "https://twitter.com/"]
 
 # ===== Konfigurasi Video Pipeline =====
 MAX_FRAMES_TO_EXTRACT = 5          # jumlah frame yang diambil dari video
 FRAME_EXTRACTION_INTERVAL_SEC = 2  # ambil 1 frame tiap berapa detik
 MAX_VIDEO_DURATION_SECONDS = 60
+MIN_IMAGE_DIMENSION = 32
 
 # ===== Konfigurasi Model =====
 # MAX_TEXT_LENGTH = 512        # batas panjang teks untuk tokenizer

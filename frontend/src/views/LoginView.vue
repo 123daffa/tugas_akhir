@@ -117,7 +117,7 @@ async function handleLogin() {
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: linear-gradient(160deg, #eafaf3 0%, #f3f8ff 60%);
+  background: linear-gradient(160deg, #eaf1ff 0%, #f7f9fd 60%);
 }
 
 .auth-wrapper {

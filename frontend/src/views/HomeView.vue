@@ -164,18 +164,11 @@
         <h4 class="kategori-teknologi">Computer Vision</h4>
         <div class="teknologi-icon"><img src="../assets/huggingface.svg" alt="Logo Hugging Face"></div>
         <h4>Clip</h4>
-        <p>Analisis kesamaan teks-gambar</p>
-      </div>
-
-      <div class="teknologi-item">
-        <h4 class="kategori-teknologi">Translation</h4>
-        <div class="teknologi-icon"><img src="../assets/huggingface.svg" alt="Logo Hugging Face"></div>
-        <h4>Helsinki</h4>
-        <p>Penerjemahan Indonesia–Inggris</p>
+        <p>Analisis kesamaan gambar-gambar</p>
       </div>
 
        <div class="teknologi-item">
-        <h4 class="kategori-teknologi">Serach Engine</h4>
+        <h4 class="kategori-teknologi">Search Engine</h4>
         <div class="teknologi-icon"><img src="../assets/tavily.svg" alt="Logo Tavily"></div>
         <h4>Tavily Search</h4>
         <p>Pencarian informasi real-time</p>

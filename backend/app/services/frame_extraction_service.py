@@ -29,7 +29,7 @@ def extract_keyframes(video_bytes: bytes, max_frames: int = MAX_FRAMES_TO_EXTRAC
               f"{fps:.1f} FPS | "
               f"durasi {durasi_detik:.1f} detik")
 
-        # VALIDASI BARU: tolak video terlalu panjang SEBELUM ekstraksi frame,
+        #tolak video terlalu panjang SEBELUM ekstraksi frame,
         # supaya tidak buang waktu proses & representasi frame tetap rapat
         if durasi_detik > MAX_VIDEO_DURATION_SECONDS:
             raise ValueError(

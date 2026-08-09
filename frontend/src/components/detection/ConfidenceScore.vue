@@ -89,8 +89,7 @@ watch(() => props.video_relevance_score, (newValue) => {
 
 <style scoped>
 .confidence-card {
-  width: 90%;
-  padding-left: 50px;
+  width: 100%;
   background: white;
   border-radius: 40px;
   padding: 20px;
@@ -225,6 +224,7 @@ watch(() => props.video_relevance_score, (newValue) => {
   font-size: 14px;
   font-weight: 600;
   flex: 1;
+  min-width: 0;
 }
 
 .stance-detail-badge {

@@ -3,8 +3,9 @@ import { ref, watch } from 'vue'
 import AdminModal from './AdminModal.vue'
 
 const props = defineProps({
-  mode: { type: String, required: true }, // 'create' | 'edit'
-  initialData: { type: Object, default: () => ({}) }
+  mode: { type: String, required: true },
+  initialData: { type: Object, default: () => ({}) },
+  isSaving: { type: Boolean, default: false }   // <-- baru, dikontrol parent
 })
 const emit = defineEmits(['close', 'submit'])
 
@@ -13,7 +14,6 @@ const email = ref('')
 const password = ref('')
 const role = ref('user')
 const error = ref('')
-const isSubmitting = ref(false)
 
 watch(
   () => props.initialData,
@@ -26,15 +26,19 @@ watch(
   { immediate: true }
 )
 
-async function handleSubmit() {
+function handleSubmit() {
   error.value = ''
 
   if (!fullName.value.trim() || !email.value.trim()) {
     error.value = 'Nama dan email wajib diisi.'
     return
   }
-  if (props.mode === 'create' && password.value.length < 6) {
-    error.value = 'Password minimal 6 karakter.'
+  if (!email.value.trim().endsWith('@gmail.com')) {
+    error.value = 'Email harus berakhiran @gmail.com'
+    return
+  }
+  if (props.mode === 'create' && password.value.length < 8) {
+    error.value = 'Password minimal 8 karakter.'
     return
   }
 
@@ -47,12 +51,7 @@ async function handleSubmit() {
     payload.password = password.value
   }
 
-  isSubmitting.value = true
-  try {
-    await emit('submit', payload)
-  } finally {
-    isSubmitting.value = false
-  }
+  emit('submit', payload)   // cukup tembak, tidak perlu await/try/finally lagi
 }
 </script>
 
@@ -71,7 +70,7 @@ async function handleSubmit() {
 
       <label class="field" v-if="mode === 'create'">
         <span>Password</span>
-        <input v-model="password" type="password" placeholder="Minimal 6 karakter" />
+        <input v-model="password" type="password" placeholder="Minimal 8 karakter" />
       </label>
 
       <label class="field">
@@ -86,8 +85,8 @@ async function handleSubmit() {
 
       <div class="form-actions">
         <button type="button" class="btn-secondary" @click="emit('close')">Batal</button>
-        <button type="submit" class="btn-primary" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Menyimpan...' : mode === 'create' ? 'Tambah' : 'Simpan' }}
+        <button type="submit" class="btn-primary" :disabled="isSaving">
+          {{ isSaving ? 'Menyimpan...' : mode === 'create' ? 'Tambah' : 'Simpan' }}
         </button>
       </div>
     </form>

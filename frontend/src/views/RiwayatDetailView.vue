@@ -93,7 +93,7 @@ const typeIconMap = {
 <style scoped>
 .detail-page {
   width: 100%;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
@@ -147,6 +147,11 @@ const typeIconMap = {
   grid-template-columns: 2fr 1fr;
   gap: 20px;
   align-items: start;
+}
+
+.left-col,
+.right-col {
+  min-width: 0;
 }
 
 @media (max-width: 720px) {

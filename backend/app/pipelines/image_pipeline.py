@@ -14,7 +14,7 @@ def ensure_url(url: str) -> str:
         return f'https://{url}'
     return url
 
-def run_image_pipeline(image_url: str, caption: str) -> dict:
+def run_image_pipeline(user_image, caption: str) -> dict:
     # Step 1: Tavily search TANPA gambar (lebih hemat credit, gambar diambil
     # ulang lebih lengkap khusus untuk artikel terpilih di Step 2.5)
     hasil_tavily = search_related_news_gambar(caption, include_images=False)
@@ -31,7 +31,7 @@ def run_image_pipeline(image_url: str, caption: str) -> dict:
     stance_result = classify_text_by_stance(caption, selected_articles)
 
     # Step 4: Similarity gambar -- CLIP saja, tanpa Groq sama sekali
-    image_result = verify_image_relevance_per_artikel(image_url, selected_articles)
+    image_result = verify_image_relevance_per_artikel(user_image, selected_articles)
 
     # Step 5: Gabungkan jadi klasifikasi akhir 4 kategori
     klasifikasi_akhir = tentukan_klasifikasi_akhir_dengan_gambar(

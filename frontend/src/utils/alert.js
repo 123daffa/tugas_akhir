@@ -53,10 +53,52 @@ export function showConfirm(message, title = 'Konfirmasi', confirmLabel = 'Ya, l
     confirmButtonText: confirmLabel,
     cancelButtonText: 'Batal',
     confirmButtonColor: '#ff4d4d',
-    cancelButtonColor: '#A5D6A7',
+    cancelButtonColor: '#66BB6A',
     color: '#111827',
     customClass: {
       cancelButton: 'swal-cancel-btn-dark-text'
     }
   }).then((result) => result.isConfirmed)
+}
+
+export async function confirmAndDelete({
+  title = 'Yakin mau menghapus?',
+  text = 'Data yang sudah dihapus tidak bisa dikembalikan.',
+  successText = 'Data berhasil dihapus.',
+  onConfirm
+}) {
+  const result = await Swal.fire({
+    title,
+    text,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, hapus!',
+    cancelButtonText: 'Batal',
+    reverseButtons: true,
+    confirmButtonColor: '#ff4d4d',
+    cancelButtonColor: '#66BB6A',
+    color: '#111827'
+  })
+
+  if (!result.isConfirmed) return false
+
+  try {
+    await onConfirm()
+    await Swal.fire({
+      title: 'Terhapus!',
+      text: successText,
+      icon: 'success',
+      confirmButtonColor: '#111827'
+    })
+    return true
+  } catch (err) {
+    const message = err.response?.data?.message || 'Terjadi kesalahan, coba lagi.'
+    Swal.fire({
+      title: 'Gagal Menghapus',
+      text: message,
+      icon: 'error',
+      confirmButtonColor: '#111827'
+    })
+    return false
+  }
 }

@@ -3,9 +3,8 @@ import { ref, onMounted, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import api from '../services/api'
 import { Trash2, Eye } from 'lucide-vue-next'
-import ConfirmDialog from '../components/admin/ConfirmDialog.vue'
 import Pagination from '../components/riwayat/PaginationBar.vue'
-import { showSuccess } from '../utils/alert'
+import { confirmAndDelete } from '../utils/alert'
 
 const CATEGORY_CLASS = {
   'Fakta': 'badge--fakta',
@@ -22,25 +21,19 @@ const currentPage = ref(1)
 const totalPages = ref(1)
 const totalItems = ref(0)
 
-const showConfirmDialog = ref(false)
-const itemToDelete = ref(null)
-
 async function loadHistory(page = 1) {
   isLoading.value = true
   error.value = ''
 
   try {
     const { data } = await api.get('/api/admin/content', {
-      params: {
-        page
-      }
+      params: { page }
     })
 
     history.value = data.items
     currentPage.value = data.currentPage
     totalPages.value = data.totalPages
     totalItems.value = data.totalItems
-
   } catch (err) {
     console.error('Gagal ambil riwayat deteksi:', err)
     error.value = 'Gagal memuat riwayat deteksi. Coba muat ulang halaman.'
@@ -55,20 +48,20 @@ watch(currentPage, (page, oldPage) => {
   }
 })
 
-function openDeleteConfirm(item) {
-  itemToDelete.value = item
-  showConfirmDialog.value = true
-}
+async function handleDelete(item) {
+  const deleted = await confirmAndDelete({
+    title: 'Hapus Riwayat?',
+    text: `Riwayat deteksi "${item.title || item.type}" milik ${item.ownerName} akan terhapus permanen.`,
+    successText: 'Riwayat berhasil dihapus.',
+    onConfirm: () => api.delete(`/api/admin/content/${item.id}`)
+  })
 
-async function handleDeleteConfirm() {
-  try {
-    await api.delete(`/api/admin/content/${itemToDelete.value.id}`)
-    showConfirmDialog.value = false
-    itemToDelete.value = null
-    await loadHistory(currentPage.value)
-    showSuccess('Riwayat Berhasil Dihapus.')
-  } catch (err) {
-    console.error('Gagal menghapus riwayat:', err)
+  if (deleted) {
+    if (history.value.length === 1 && currentPage.value > 1) {
+      currentPage.value -= 1
+    } else {
+      await loadHistory(currentPage.value)
+    }
   }
 }
 
@@ -95,25 +88,15 @@ onMounted(() => {
     </p>
 
     <section class="table-card">
-
-      <p
-        v-if="isLoading"
-        class="empty-state"
-      >
+      <p v-if="isLoading" class="empty-state">
         Memuat data...
       </p>
 
-      <p
-        v-else-if="history.length === 0"
-        class="empty-state"
-      >
+      <p v-else-if="history.length === 0" class="empty-state">
         Belum ada riwayat deteksi.
       </p>
 
-      <table
-        v-else
-        class="history-table"
-      >
+      <table v-else class="history-table">
         <thead>
           <tr>
             <th>User</th>
@@ -125,43 +108,31 @@ onMounted(() => {
         </thead>
 
         <tbody>
-          <tr
-            v-for="item in history"
-            :key="item.id"
-          >
+          <tr v-for="item in history" :key="item.id">
             <td>{{ item.ownerName }}</td>
-
             <td>{{ item.type }}</td>
-
             <td>
-              <span
-                class="badge"
-                :class="CATEGORY_CLASS[item.category] || ''"
-              >
+              <span class="badge" :class="CATEGORY_CLASS[item.category] || ''">
                 {{ item.category }}
               </span>
             </td>
-
             <td>{{ item.date }}</td>
-
             <td class="col-actions">
-
               <RouterLink
                 class="icon-btn"
                 :to="`/riwayat/${item.id}`"
                 title="Lihat Detail"
               >
-                <Eye :size="16"/>
+                <Eye :size="16" />
               </RouterLink>
 
               <button
                 class="icon-btn icon-btn--danger"
                 title="Hapus"
-                @click="openDeleteConfirm(item)"
+                @click="handleDelete(item)"
               >
-                <Trash2 :size="16"/>
+                <Trash2 :size="16" />
               </button>
-
             </td>
           </tr>
         </tbody>
@@ -172,18 +143,7 @@ onMounted(() => {
         v-model:currentPage="currentPage"
         :totalPages="totalPages"
       />
-
     </section>
-
-    <ConfirmDialog
-      v-if="showConfirmDialog"
-      title="Hapus Riwayat"
-      message="Yakin ingin menghapus riwayat deteksi ini? Tindakan ini tidak dapat dibatalkan."
-      confirm-label="Hapus"
-      @close="showConfirmDialog = false"
-      @confirm="handleDeleteConfirm"
-    />
-
   </div>
 </template>
 

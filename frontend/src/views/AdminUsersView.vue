@@ -3,18 +3,16 @@ import { ref, onMounted } from 'vue'
 import api from '../services/api'
 import { Plus, Pencil, Trash2 } from 'lucide-vue-next'
 import Userformmodal from '../components/admin/Userformmodal.vue'
-import ConfirmDialog from '../components/admin/ConfirmDialog.vue'
+import { showSuccess, showError, confirmAndDelete } from '../utils/alert'
 
 const users = ref([])
 const isLoading = ref(true)
 const error = ref('')
+const isSaving = ref(false)
 
 const showFormModal = ref(false)
 const formMode = ref('create') // 'create' | 'edit'
 const selectedUser = ref(null)
-
-const showConfirmDialog = ref(false)
-const userToDelete = ref(null)
 
 async function loadUsers() {
   isLoading.value = true
@@ -43,32 +41,34 @@ function openEditModal(user) {
 }
 
 async function handleFormSubmit(payload) {
+  isSaving.value = true
   try {
     if (formMode.value === 'create') {
       await api.post('/api/admin/users', payload)
+      showSuccess(`User "${payload.fullName}" berhasil ditambahkan.`)
     } else {
       await api.put(`/api/admin/users/${selectedUser.value.id}`, payload)
+      showSuccess(`User "${payload.fullName}" berhasil diperbarui.`)
     }
     showFormModal.value = false
     await loadUsers()
   } catch (err) {
     console.error('Gagal menyimpan user:', err)
+    const message = err.response?.data?.message || 'Gagal menyimpan data user. Coba lagi.'
+    showError(message, formMode.value === 'create' ? 'Gagal Menambah User' : 'Gagal Memperbarui User')
   }
 }
 
-function openDeleteConfirm(user) {
-  userToDelete.value = user
-  showConfirmDialog.value = true
-}
+async function handleDelete(user) {
+  const deleted = await confirmAndDelete({
+    title: 'Hapus User?',
+    text: `Yakin ingin menghapus user "${user.fullName}"? Seluruh riwayat deteksi miliknya juga akan ikut terhapus permanen.`,
+    successText: `User "${user.fullName}" berhasil dihapus.`,
+    onConfirm: () => api.delete(`/api/admin/users/${user.id}`)
+  })
 
-async function handleDeleteConfirm() {
-  try {
-    await api.delete(`/api/admin/users/${userToDelete.value.id}`)
-    showConfirmDialog.value = false
-    userToDelete.value = null
+  if (deleted) {
     await loadUsers()
-  } catch (err) {
-    console.error('Gagal menghapus user:', err)
   }
 }
 
@@ -113,7 +113,7 @@ onMounted(loadUsers)
               <button class="icon-btn" title="Edit" @click="openEditModal(user)">
                 <Pencil :size="16" />
               </button>
-              <button class="icon-btn icon-btn--danger" title="Hapus" @click="openDeleteConfirm(user)">
+              <button class="icon-btn icon-btn--danger" title="Hapus" @click="handleDelete(user)">
                 <Trash2 :size="16" />
               </button>
             </td>
@@ -128,15 +128,6 @@ onMounted(loadUsers)
       :initial-data="selectedUser || {}"
       @close="showFormModal = false"
       @submit="handleFormSubmit"
-    />
-
-    <ConfirmDialog
-      v-if="showConfirmDialog"
-      title="Hapus User"
-      :message="`Yakin ingin menghapus user '${userToDelete?.fullName}'? Tindakan ini tidak bisa dibatalkan.`"
-      confirm-label="Hapus"
-      @close="showConfirmDialog = false"
-      @confirm="handleDeleteConfirm"
     />
   </div>
 </template>

@@ -1,5 +1,5 @@
 from tavily import TavilyClient
-from app.core.constants import TAVILY_MAX_RESULTS, TAVILY_SEARCH_DEPTH, TAVILY_TOPIC
+from app.core.constants import TAVILY_MAX_RESULTS, TAVILY_SEARCH_DEPTH, TAVILY_TOPIC, TAVILY_EXCLUDE_DOMAINS
 from app.core.config import settings
 
 tavily_client = TavilyClient(settings.TAVILY_API_KEY)
@@ -12,6 +12,7 @@ def search_related_news_gambar(query: str, include_images: bool = False) -> dict
             topic=TAVILY_TOPIC,
             search_depth=TAVILY_SEARCH_DEPTH,
             max_results=TAVILY_MAX_RESULTS,
+            exclude_domains=TAVILY_EXCLUDE_DOMAINS,
             include_images=include_images
         )
         results = response.get("results", [])
