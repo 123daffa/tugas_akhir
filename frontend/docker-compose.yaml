@@ -13,6 +13,6 @@ services:
     # networks:
     #   - app-network
 
-# networks:
-#   app-network:
-#     external: true   # or drop `external: true` if defined in the same file
+networks:
+  app-network:
+    external: true   # or drop `external: true` if defined in the same file

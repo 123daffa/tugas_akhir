@@ -27,7 +27,7 @@ services:
 
 networks:
   factcheck-network:
-    external: true
+    driver : bridge
 
 volumes:
   clip-model-cache:
