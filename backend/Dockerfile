@@ -20,12 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install torch versi CPU-ONLY secara eksplisit LEBIH DULU. Kalau tidak,
-# pip default bisa mengunduh build CUDA/GPU yang ukurannya jauh lebih
-# besar (>2GB) padahal kemungkinan besar server deploy tidak punya GPU.
-# Hapus baris ini kalau requirements.txt kamu sudah menangani torch sendiri.
-RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
-
 # Copy requirements.txt DULU, sebelum copy source code -- supaya layer
 # Docker ini ke-cache dan tidak install ulang semua dependency tiap kali
 # cuma ada perubahan kode (bukan perubahan requirements.txt).
