@@ -1,20 +1,30 @@
 <script setup>
 import { computed } from 'vue'
+import { Lightbulb,Feather,ChartColumnIncreasing,GalleryVerticalEnd,Image,FileText } from 'lucide-vue-next';
 // Kartu "Hasil Analisis": menampilkan label klasifikasi, kesimpulan dari LLM,
 // dan sumber rujukan yang ditemukan oleh Tavily search
 const props = defineProps({
-  label: { type: String, default: '' },    // fakta | false | misleading | fabricated
-  penjelasan: { type: String, required: true },
+  label: { type: String, default: '' },    // salah satu dari kategoriUrutan di bawah
+  conclusion: { type: String, required: true },
   articles: {
     type: Array,
     default: () => []
   },
   jumlah_artikel: { type: Number, default: 0 },      
-  kredibilitas_score: { type: Number, default: 0 },
+  score_tavily: { type: Number, default: 0 },
   confidence: { type: Number, default: 0 },              
   stance_breakdown: {                                     
     type: Object,
-    default: () => ({ 'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0  })
+    default: () => ({
+      'Fakta': 0,
+      'Satire atau Parodi': 0,
+      'False Connection': 0,
+      'Misleading Content': 0,
+      'False Context': 0,
+      'Imposter Content': 0,
+      'Manipulated Content': 0,
+      'Fabricated Content': 0
+    })
   },
   alasan_per_artikel: {
     type: Array,
@@ -22,7 +32,7 @@ const props = defineProps({
   },
   // ← baru: hasil analisis gambar
   image_relevance_score: { type: Number, default: null },
-  penjelasan_gambar: { type: String, default: '' },
+  conclusion_gambar: { type: String, default: '' },
   artikel_gambar_paling_relevan: { type: String, default: null },
   detail_gambar_per_artikel: {
     type: Array,
@@ -30,18 +40,28 @@ const props = defineProps({
   }
 })
 
-// Mapping label -> warna badge, biar gampang extend kalau ada kategori baru
+// Mapping label -> warna badge, diurutkan dari low harm (hijau/teal) ke
+// high harm (merah tua/abu), mengikuti spektrum "7 Types of Mis- and
+// Disinformation" (First Draft, Claire Wardle 2019).
 const labelStyleMap = {
   'Fakta': { bg: '#20d48a', color: 'white', icon: '✓' },
-  'False Content': { bg: '#ff4d4d', color: 'white', icon: '⚠' },
+  'Satire atau Parodi': { bg: '#4dd0c4', color: 'white', icon: '😄' },
+  'False Connection': { bg: '#ffe066', color: '#333', icon: '🔗' },
   'Misleading Content': { bg: '#ffcc00', color: 'white', icon: '⏱' },
-  'Fabricated Content': { bg: '#808080', color: 'white', icon: '✂' }
+  'False Context': { bg: '#ff9933', color: 'white', icon: '🗺' },
+  'Imposter Content': { bg: '#ff704d', color: 'white', icon: '🎭' },
+  'Manipulated Content': { bg: '#ff4d4d', color: 'white', icon: '✂' },
+  'Fabricated Content': { bg: '#808080', color: 'white', icon: '⚠' }
 }
 
 const stanceCardStyleMap = {
   'Fakta': { bg: '#E5FFF3', border: '#20d48a' },
-  'False Content': { bg: '#FFE5E5', border: '#ff4d4d' },
+  'Satire atau Parodi': { bg: '#E5FBF9', border: '#4dd0c4' },
+  'False Connection': { bg: '#FFF9E5', border: '#ffe066' },
   'Misleading Content': { bg: '#FFF8E1', border: '#ffcc00' },
+  'False Context': { bg: '#FFF1E0', border: '#ff9933' },
+  'Imposter Content': { bg: '#FFE9E2', border: '#ff704d' },
+  'Manipulated Content': { bg: '#FFE5E5', border: '#ff4d4d' },
   'Fabricated Content': { bg: '#F0F0F0', border: '#808080' }
 }
 
@@ -49,8 +69,12 @@ const stanceCardStyleMap = {
 const confidenceBarGradient = computed(() => {
   const gradientMap = {
     'Fakta': 'linear-gradient(90deg, #20d48a, #006C49)',
-    'False Content': 'linear-gradient(90deg, #ff8080, #cc0000)',
+    'Satire atau Parodi': 'linear-gradient(90deg, #7de0d6, #2c9c92)',
+    'False Connection': 'linear-gradient(90deg, #ffe066, #cc9900)',
     'Misleading Content': 'linear-gradient(90deg, #ffdd55, #cc9900)',
+    'False Context': 'linear-gradient(90deg, #ffb366, #cc6600)',
+    'Imposter Content': 'linear-gradient(90deg, #ff9980, #cc3300)',
+    'Manipulated Content': 'linear-gradient(90deg, #ff8080, #cc0000)',
     'Fabricated Content': 'linear-gradient(90deg, #a0a0a0, #505050)'
   }
   return gradientMap[props.label] || 'linear-gradient(90deg, #20d48a, #006C49)'
@@ -64,8 +88,19 @@ const imageBarGradient = computed(() => {
     ? 'linear-gradient(90deg, #20d48a, #006C49)'
     : 'linear-gradient(90deg, #ff8080, #cc0000)'
 })
-// Urutan tampilan tetap konsisten (bukan urutan acak dari Object.keys)
-const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabricated Content']
+
+// Urutan tampilan tetap konsisten (bukan urutan acak dari Object.keys),
+// mengikuti spektrum low->high harm First Draft, "Fakta" ditaruh paling awal.
+const kategoriUrutan = [
+  'Fakta',
+  'Satire atau Parodi',
+  'False Connection',
+  'Misleading Content',
+  'False Context',
+  'Imposter Content',
+  'Manipulated Content',
+  'Fabricated Content'
+]
 </script>
 
 <template>
@@ -84,14 +119,17 @@ const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabrica
 
     <div class="section">
       <div class="section-title">
-        <span class="dot">✨</span> Kesimpulan Klasifikasi
+        <span class="dot">
+          <Feather :size="20" style="vertical-align: middle; margin-bottom: 2px;" />
+        </span> Kesimpulan Klasifikasi
       </div>
-      <p class="conclusion-text">{{ penjelasan }}</p>
+      <p class="conclusion-text">{{ conclusion }}</p>
     </div>
 
     <!-- section confidence -->
     <div class="section">
-      <div class="section-title">🎯 Tingkat Keyakinan</div>
+      <div class="section-title">
+        <Lightbulb :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Tingkat Keyakinan</div>
       <div class="confidence-bar-track">
         <div class="confidence-bar-fill" :style="{ width: confidence + '%', background: confidenceBarGradient }"></div>
       </div>
@@ -100,7 +138,8 @@ const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabrica
 
     <!-- section relevansi gambar (cuma muncul kalau ada cek gambar) -->
     <div class="section" v-if="image_relevance_score !== null">
-      <div class="section-title">🖼️ Relevansi Gambar</div>
+      <div class="section-title">
+        <Image :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Relevansi Gambar</div>
       <div class="confidence-bar-track">
         <div class="confidence-bar-fill" :style="{ width: image_relevance_score + '%', background: imageBarGradient }"></div>
       </div>
@@ -113,22 +152,24 @@ const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabrica
 
     <!-- section jumlah artikel -->
     <div class="section">
-      <div class="section-title">📊 Statistik Pencarian</div>
+      <div class="section-title">
+        <ChartColumnIncreasing :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Statistik Pencarian</div>
       <div class="stats-grid">
         <div class="stat-item">
           <span class="stat-label">Jumlah Artikel</span>
           <span class="stat-value">{{ jumlah_artikel }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Top 5 Rata Rata Kredibilitas Score</span>
-          <span class="stat-value">{{ (kredibilitas_score * 100).toFixed(1) }}%</span>
+          <span class="stat-label">Top 5 Rata Rata Score</span>
+          <span class="stat-value">{{ (score_tavily * 100).toFixed(1) }}%</span>
         </div>
       </div>
     </div>
 
      <!-- section stance breakdown -- sekarang 4 kategori (majority vote), bukan 3 sikap -->
     <div class="section">
-      <div class="section-title">🗳️ Rincian Vote Per Kategori</div>
+      <div class="section-title">
+        <GalleryVerticalEnd :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Rincian Vote Per Kategori</div>
       <div class="stance-grid-4">
         <div
           v-for="kategori in kategoriUrutan"
@@ -144,7 +185,8 @@ const kategoriUrutan = ['Fakta', 'False Content', 'Misleading Content', 'Fabrica
 
    <!-- section alasan per artikel -->
     <div class="section" v-if="alasan_per_artikel.length > 0">
-      <div class="section-title">📝 Analisis Per Artikel</div>
+      <div class="section-title">
+        <FileText :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Analisis Per Artikel</div>
       <div class="stance-detail-list">
         <div
           v-for="(item, index) in alasan_per_artikel"

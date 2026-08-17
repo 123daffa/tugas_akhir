@@ -53,7 +53,7 @@ function handleSubmit() {
 
     <div class="form-footer">
       <span class="counter" :class="{ 'counter--error': isTooLong }">
-        {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kata
+        {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kalimat
       </span>
       <button class="btn-check" :disabled="!isTextValid || isLoading" @click="handleSubmit">
         <ScanSearch :size="16" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" /> {{ isLoading ? 'Memeriksa...' : 'Periksa Fakta' }}

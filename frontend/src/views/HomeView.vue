@@ -1,3 +1,16 @@
+<script setup>
+import {
+  CheckCircle2,
+  Laugh,
+  Link2,
+  Clock,
+  MapPinOff,
+  Drama,
+  Scissors,
+  AlertTriangle
+} from 'lucide-vue-next'
+</script>
+
 <template>
   <section id="landing">
     <div class="home">
@@ -16,10 +29,14 @@
       </div>
       <div class="home-claim">
         <ul class="home-claim-list">
-          <li class="home-claim-fakta">Fakta</li>
-          <li class="home-claim-false">False Content</li>
-          <li class="home-claim-misleading">Misleading Content</li>
-          <li class="home-claim-fabricated">Fabricated Content</li>
+          <li class="home-claim-pill home-claim-fakta">Fakta</li>
+          <li class="home-claim-pill home-claim-satire">Satire atau Parodi</li>
+          <li class="home-claim-pill home-claim-false-connection">False Connection</li>
+          <li class="home-claim-pill home-claim-misleading">Misleading Content</li>
+          <li class="home-claim-pill home-claim-false-context">False Context</li>
+          <li class="home-claim-pill home-claim-imposter">Imposter Content</li>
+          <li class="home-claim-pill home-claim-manipulated">Manipulated Content</li>
+          <li class="home-claim-pill home-claim-fabricated">Fabricated Content</li>
         </ul>
       </div>  
     </div>
@@ -100,27 +117,54 @@
           memberikan konteks yang jelas pada setiap berita.</h3>
     </div>
     <div class="kategori-penjelasan">
-      <div class="kategori-item-fakta">
-        <img src="/src/assets/checked.png" alt="Fakta" />
-        <h2>Fakta</h2>
-        <p>Informasi yang telah diverifikasi kebenarannya melalui pengecekan silang dengan sumber-sumber terpercaya, data resmi, dan bukti pendukung yang dapat diverifikasi. Konten dalam kategori ini telah melewati proses analisis dan tidak mengandung unsur manipulasi.</p>
-      </div>
-      <div class="kategori-item-false">
-        <img src="/src/assets/cancel.png" alt="False Content" />
-        <h2>False Content</h2>
-        <p>Informasi yang sepenuhnya dibuat tanpa dasar fakta sama sekali, mulai dari klaim, angka, hingga peristiwa yang digambarkan. Konten jenis ini biasanya diciptakan untuk tujuan manipulasi opini publik, penipuan, atau sekadar hiburan yang menyesatkan pembaca.</p>
-      </div>
-      <div class="kategori-item-misleading">
-        <img src="/src/assets/crisis.png" alt="Misleading Content" />
-        <h2>Misleading Content</h2>
-        <p>Informasi yang disajikan dengan cara yang menyesatkan meskipun mengandung elemen kebenaran di dalamnya. Biasanya berupa fakta yang dipelintir, diambil di luar konteks, atau disajikan sebagian saja sehingga menimbulkan kesan atau kesimpulan yang keliru bagi pembaca.</p>
-      </div>
-      <div class="kategori-item-fabricated">
-        <img src="/src/assets/scissor.png" alt="Fabricated Content" />
-        <h2>Fabricated Content</h2>
-        <p>Informasi yang telah terbukti dipalsukan atau dimodifikasi dari sumber aslinya, baik melalui manipulasi gambar/video, pengeditan kutipan, atau penyuntingan konten resmi. Biasanya disebarkan dengan tujuan tertentu, seperti menyudutkan pihak tertentu atau menciptakan kepanikan.</p>
-      </div>
+    <div class="kategori-item-fakta">
+      <CheckCircle2 :size="40" class="kategori-icon" />
+      <h2>Fakta</h2>
+      <p>Informasi yang telah diverifikasi kebenarannya melalui pengecekan silang dengan sumber-sumber terpercaya, data resmi, dan bukti pendukung yang dapat diverifikasi. Konten dalam kategori ini telah melewati proses analisis dan tidak mengandung unsur manipulasi.</p>
     </div>
+
+    <div class="kategori-item-satire">
+      <Laugh :size="40" class="kategori-icon" />
+      <h2>Satire atau Parodi</h2>
+      <p>Konten yang dibuat sebagai lelucon atau sindiran tanpa niat menyesatkan atau merugikan siapa pun. Meski begitu, konten ini tetap berpotensi membuat pembaca salah paham dan menganggapnya serius apabila dibaca tanpa memahami konteks aslinya.</p>
+    </div>
+
+    <div class="kategori-item-false-connection">
+      <Link2 :size="40" class="kategori-icon" />
+      <h2>False Connection</h2>
+      <p>Informasi di mana judul, gambar, atau keterangan (caption) tidak sesuai atau tidak didukung oleh isi konten sebenarnya. Pola ini sering ditemukan pada judul clickbait yang dibuat sensasional demi menarik perhatian pembaca.</p>
+    </div>
+
+    <div class="kategori-item-misleading">
+      <Clock :size="40" class="kategori-icon" />
+      <h2>Misleading Content</h2>
+      <p>Informasi yang disajikan dengan cara yang menyesatkan meskipun mengandung elemen kebenaran di dalamnya. Biasanya berupa fakta yang dipelintir, diambil di luar konteks, atau disajikan sebagian saja sehingga menimbulkan kesan atau kesimpulan yang keliru bagi pembaca.</p>
+    </div>
+
+    <div class="kategori-item-false-context">
+      <MapPinOff :size="40" class="kategori-icon" />
+      <h2>False Context</h2>
+      <p>Konten asli (foto, video, atau peristiwa nyata) yang disebarluaskan bersama keterangan waktu, tempat, atau situasi yang salah. Materinya benar-benar asli, namun konteks yang menyertainya telah diputarbalikkan.</p>
+    </div>
+
+    <div class="kategori-item-imposter">
+      <Drama :size="40" class="kategori-icon" />
+      <h2>Imposter Content</h2>
+      <p>Informasi yang mengatasnamakan atau meniru sumber terpercaya, seperti logo media resmi, nama jurnalis, atau institusi tertentu, padahal sumber tersebut tidak pernah mengeluarkan pernyataan tersebut. Bertujuan membuat klaim palsu terlihat lebih kredibel.</p>
+    </div>
+
+    <div class="kategori-item-manipulated">
+      <Scissors :size="40" class="kategori-icon" />
+      <h2>Manipulated Content</h2>
+      <p>Informasi yang telah terbukti dipalsukan atau dimodifikasi dari sumber aslinya, baik melalui manipulasi gambar/video, pengeditan kutipan, atau penyuntingan konten resmi. Biasanya disebarkan dengan tujuan tertentu, seperti menyudutkan pihak tertentu atau menciptakan kepanikan.</p>
+    </div>
+
+    <div class="kategori-item-fabricated">
+      <AlertTriangle :size="40" class="kategori-icon" />
+      <h2>Fabricated Content</h2>
+      <p>Informasi yang sepenuhnya dibuat tanpa dasar fakta sama sekali, mulai dari klaim, angka, hingga peristiwa yang digambarkan. Konten jenis ini biasanya diciptakan untuk tujuan manipulasi opini publik, penipuan, atau sekadar hiburan yang menyesatkan pembaca.</p>
+    </div>
+  </div>
   </section>
 
   <section id="teknologi">
@@ -266,34 +310,57 @@ h1 {
   margin-top: 60px;
   list-style-type: none;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 40px;
+  gap: 16px;
   margin-bottom: 40px;
+  padding: 0;
 }
 
+/* Style dasar dipisah ke satu class shared, tinggal tambah modifier
+   warna per kategori -- menggantikan 4 (sekarang 8) blok copy-paste. */
+.home-claim-pill {
+  padding: 10px 22px;
+  border-radius: 20px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Warna diurutkan dari low harm ke high harm, mengikuti spektrum
+   "7 Types of Mis- and Disinformation" (First Draft, Claire Wardle 2019),
+   senada dengan warna badge di ResultCard.vue dan HistoryCard.vue */
 .home-claim-fakta {
   background-color: #20d48a;
-  color: white;
-  padding: 10px 25px;
-  border-radius: 20px;
 }
-.home-claim-false {
-  background-color: #ff4d4d;
-  color: white;
-  padding: 10px 25px;
-  border-radius: 20px;
+
+.home-claim-satire {
+  background-color: #4dd0c4;
 }
+
+.home-claim-false-connection {
+  background-color: #ffe066;
+  color: #333;
+}
+
 .home-claim-misleading {
   background-color: #ffcc00;
-  color: white;
-  padding: 10px 25px;
-  border-radius: 20px;
 }
+
+.home-claim-false-context {
+  background-color: #ff9933;
+}
+
+.home-claim-imposter {
+  background-color: #ff704d;
+}
+
+.home-claim-manipulated {
+  background-color: #ff4d4d;
+}
+
 .home-claim-fabricated {
   background-color: #808080;
-  color: white;
-  padding: 10px 25px;
-  border-radius: 20px;
 }
 
 #keunggulan {
@@ -487,13 +554,13 @@ background-color: #EFF4FF;
 }
 
 #kategori-deteksi {
-background-color: white;
+  background-color: white;
 }
 
 .kategori-deteksi-header {
   text-align: center;
-  line-height: 1.4;        
-  max-width: 60%;        
+  line-height: 1.4;
+  max-width: 60%;
   margin: 50px auto 100px;
   color: black;
 }
@@ -501,93 +568,103 @@ background-color: white;
 .kategori-deteksi-header h1 {
   font-weight: 700;
 }
+
 .kategori-deteksi-header h3 {
   margin-top: 20px;
   color: #666;
 }
+
+/* Diganti dari flex ke grid -- flex 8 item sejajar akan terlalu sempit,
+   grid bisa wrap otomatis ke beberapa baris sesuai lebar layar. */
 .kategori-penjelasan {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   align-items: stretch;
-  justify-content: space-between;
   margin-top: 50px;
-  padding-left: 20px;
-  gap: 50px;
+  padding: 0 20px;
+  gap: 30px;
 }
 
-.kategori-penjelasan img {
-  display: block;      
-  margin: 0 auto 20px; 
-  width: 50px;
-  height: 50px;
+@media (max-width: 1100px) {
+  .kategori-penjelasan {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .kategori-penjelasan {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Icon lucide (component), menggantikan selector "img" lama */
+.kategori-icon {
+  display: block;
+  margin: 0 auto 20px;
 }
 
 .kategori-penjelasan h2 {
   text-align: center;
-  justify-content: center;
+  font-size: 18px;
   margin-bottom: 10px;
 }
+
 .kategori-penjelasan p {
   color: #666;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.kategori-item-fakta {
+/* Satu class shared untuk semua kartu kategori -- menggantikan 4 blok
+   copy-paste identik sebelumnya. Tinggal tambah class ini + modifier
+   warna di setiap div kategori. */
+[class^="kategori-item-"] {
   background-color: rgba(251, 252, 251, 0.7);
   color: black;
   padding: 30px;
   border-radius: 20px;
-  flex: 1;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kategori-item-fakta:hover {
+[class^="kategori-item-"]:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-.kategori-item-false {
-  background-color: rgba(251, 252, 251, 0.7);
-  color: black;
-  padding: 30px;
-  border-radius: 20px;
-  flex: 1;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Warna icon tiap kategori, mengikuti spektrum low->high harm
+   (First Draft, Claire Wardle 2019) -- senada dengan warna badge
+   di ResultCard.vue dan HistoryCard.vue */
+.kategori-item-fakta .kategori-icon {
+  color: #20d48a;
 }
 
-.kategori-item-false:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+.kategori-item-satire .kategori-icon {
+  color: #4dd0c4;
 }
 
-.kategori-item-misleading {
-  background-color: rgba(251, 252, 251, 0.7);
-  color: black;
-  padding: 30px;
-  border-radius: 20px;
-  flex: 1;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.kategori-item-false-connection .kategori-icon {
+  color: #e0b800;
 }
 
-.kategori-item-misleading:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+.kategori-item-misleading .kategori-icon {
+  color: #ffcc00;
 }
 
-.kategori-item-fabricated {
-  background-color: rgba(251, 252, 251, 0.7);
-  color: black;
-  padding: 30px;
-  border-radius: 20px;
-  flex: 1;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.kategori-item-false-context .kategori-icon {
+  color: #ff9933;
 }
 
-.kategori-item-fabricated:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+.kategori-item-imposter .kategori-icon {
+  color: #ff704d;
+}
+
+.kategori-item-manipulated .kategori-icon {
+  color: #ff4d4d;
+}
+
+.kategori-item-fabricated .kategori-icon {
+  color: #808080;
 }
 
 

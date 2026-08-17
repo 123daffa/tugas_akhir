@@ -31,7 +31,8 @@ def create_app(env_name=None):
     }
 
     # CORS untuk Vue.js frontend
-    CORS(app, origins=["http://web.factcheck.my.id:80"])
+    # CORS(app, origins=["http://web.factcheck.my.id:80"])
+    CORS(app, origins=["http://localhost:5173"])
     # CORS(app, origins=["216.198.79.1"])
 
     db.init_app(app)

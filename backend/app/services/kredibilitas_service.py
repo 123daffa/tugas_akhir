@@ -1,10 +1,10 @@
 from app.core.constants import MINIMAL_SCORES_TAVILY
 
-def calculate_kredibilitas_score(tavily_results: list) -> dict:
+def calculate_score(tavily_results: list) -> dict:
     if not tavily_results:
         return {
             "selected_articles": [],
-            "kredibilitas_score": 0.0,
+            "score_tavily": 0.0,
             "jumlah_artikel": 0,
         }
 
@@ -28,12 +28,12 @@ def calculate_kredibilitas_score(tavily_results: list) -> dict:
     selected_scores = [article.get("score", 0.0) for article in selected_articles]
 
     jumlah_artikel = len(tavily_results)  # tetap jumlah SEMUA artikel
-    kredibilitas_score = sum(selected_scores) / len(selected_scores)
+    score_tavily = sum(selected_scores) / len(selected_scores)
 
-    print(f"[INFO] Kredibilitas score: {kredibilitas_score} dari {len(selected_scores)} artikel terpilih (total {jumlah_artikel} artikel)")
+    print(f"[INFO] Score: {score_tavily} dari {len(selected_scores)} artikel terpilih (total {jumlah_artikel} artikel)")
 
     return {
         "selected_articles": selected_articles,
-        "kredibilitas_score": kredibilitas_score,
+        "score_tavily": score_tavily,
         "jumlah_artikel": jumlah_artikel,
     }

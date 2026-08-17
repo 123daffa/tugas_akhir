@@ -4,7 +4,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
 import api from '../services/api'
-import { MoveLeft } from 'lucide-vue-next';
+import { FileText, Image, Video, Calendar, MoveLeft } from 'lucide-vue-next'
 
 const route = useRoute()
 
@@ -28,9 +28,9 @@ async function loadDetail() {
 onMounted(loadDetail)
 
 const typeIconMap = {
-  Teks: '📝',
-  Gambar: '🖼',
-  Video: '🎬'
+  Teks: FileText,
+  Gambar: Image,
+  Video: Video
 }
 </script>
 
@@ -44,8 +44,12 @@ const typeIconMap = {
 
     <div v-if="item">
       <div class="detail-meta">
-        <span class="meta-item">📅 {{ item.date }}</span>
-        <span class="meta-item">{{ typeIconMap[item.type] }} {{ item.type }}</span>
+        <span class="meta-item">
+          <Calendar :size="14" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />{{ item.date }}
+        </span>
+        <span class="meta-item">
+          <component :is="typeIconMap[item.type]" :size="14" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />{{ item.type }}
+        </span>
       </div>
 
       <h1 class="detail-title">{{ item.title }}</h1>
@@ -61,7 +65,7 @@ const typeIconMap = {
             :conclusion="item.conclusion"
             :articles="item.articles || []"
             :jumlah_artikel="item.jumlah_artikel ?? (item.articles || []).length"
-            :kredibilitas_score="item.accuracy / 100"
+            :score_tavily="item.accuracy / 100"
             :confidence="item.confidence || 0"
             :stance_breakdown="item.stance_breakdown"
             :alasan_per_artikel="item.alasan_per_artikel || []"

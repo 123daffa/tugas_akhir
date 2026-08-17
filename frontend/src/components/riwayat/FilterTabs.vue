@@ -4,7 +4,17 @@ defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
-const filters = ['Semua', 'Fakta', 'False Content', 'Misleading Content', 'Fabricated Content']
+const filters = [
+  'Semua',
+  'Fakta',
+  'Satire atau Parodi',
+  'False Connection',
+  'Misleading Content',
+  'False Context',
+  'Imposter Content',
+  'Manipulated Content',
+  'Fabricated Content'
+]
 </script>
 
 <template>

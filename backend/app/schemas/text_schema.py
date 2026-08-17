@@ -9,7 +9,7 @@ class TextCheckRequest:
 @dataclass
 class TextCheckResponse:
     jumlah_artikel: int
-    kredibilitas_score: float
+    score_tavily: float
     klasifikasi: str
     confidence: float
     penjelasan: str

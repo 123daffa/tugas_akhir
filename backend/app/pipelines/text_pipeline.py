@@ -1,5 +1,5 @@
 from app.services.search_service import search_related_news
-from app.services.kredibilitas_service import calculate_kredibilitas_score
+from app.services.kredibilitas_service import calculate_score
 from app.services.groq_stance_service import classify_text_by_stance
 from app.utils.penjelasan_helper import build_penjelasan
 from app.utils.url_helper import ensure_url
@@ -10,15 +10,15 @@ def run_text_pipeline(caption: str) -> dict:
     berita = search_related_news(caption)
 
     # Step 2: Hitung kredibilitas dari metadata Tavily + selected articles
-    kredibilitas_data = calculate_kredibilitas_score(berita)
-    selected_articles = kredibilitas_data.get("selected_articles", [])
+    data_tavily = calculate_score(berita)
+    selected_articles = data_tavily.get("selected_articles", [])
 
     # Step 3: Groq summarize artikel → penjelasan untuk user + klasifikasi
     stance_result = classify_text_by_stance(caption, selected_articles)
     
     return {
-        "jumlah_artikel": kredibilitas_data["jumlah_artikel"],
-        "kredibilitas_score": kredibilitas_data["kredibilitas_score"],
+        "jumlah_artikel": data_tavily["jumlah_artikel"],
+        "score_tavily": data_tavily["score_tavily"],
         "klasifikasi": stance_result["klasifikasi"],
         "confidence": round(stance_result["confidence_score"] * 100, 2),  # 0-1 -> 0-100
         "penjelasan": build_penjelasan(stance_result),

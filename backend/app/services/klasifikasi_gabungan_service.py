@@ -1,46 +1,48 @@
 from app.services.groq_stance_service import URUTAN_TIE_BREAK
 
 
-def _cari_kandidat_menang(breakdown: dict) -> list:
-    skor_tertinggi = max(breakdown.values()) 
-    return [kategori for kategori, jumlah in breakdown.items() if jumlah == skor_tertinggi] # mengambil kategori dengan vote terbanyak
-
-
 def tentukan_klasifikasi_akhir_dengan_gambar(
     stance_breakdown: dict,
     alasan_per_artikel: list,
     detail_gambar_per_artikel: list
 ) -> str:
     """
-    Majority vote teks seperti biasa. Kalau ada seri, tie-break pakai
-    SIMILARITY GAMBAR TERTINGGI di antara kategori yang seri (match by url).
-    Fallback ke URUTAN_TIE_BREAK statis kalau similarity juga tidak memutus seri.
-    """
-    kandidat = _cari_kandidat_menang(stance_breakdown)
-    if len(kandidat) == 1:
-        return kandidat[0]
+    Klasifikasi akhir ditentukan oleh artikel dengan relevance_score
+    gambar PALING TINGGI di antara SEMUA artikel (tanpa memandang
+    stance-nya menang vote atau tidak) -- stance artikel tersebut
+    yang dipakai sebagai hasil akhir.
 
+    Fallback ke majority vote teks (+ URUTAN_TIE_BREAK) HANYA kalau
+    tidak ada data gambar sama sekali, atau semua relevance_score-nya 0.
+    """
     similarity_by_url = {
         d.get("url"): d.get("relevance_score", 0.0)
         for d in detail_gambar_per_artikel
     }
 
-    skor_similarity_per_kategori = {}
-    for kategori in kandidat:
-        skor_terbaik = 0.0
-        for artikel in alasan_per_artikel:
-            if artikel.get("stance") == kategori:
-                sim = similarity_by_url.get(artikel.get("url"), 0.0)
-                skor_terbaik = max(skor_terbaik, sim)
-        skor_similarity_per_kategori[kategori] = skor_terbaik
+    artikel_dengan_stance = [
+        artikel for artikel in alasan_per_artikel
+        if artikel.get("stance")
+    ]
 
-    skor_tertinggi = max(skor_similarity_per_kategori.values())
-    kandidat_setelah_gambar = [k for k, v in skor_similarity_per_kategori.items() if v == skor_tertinggi]
+    if artikel_dengan_stance:
+        artikel_terbaik = max(
+            artikel_dengan_stance,
+            key=lambda a: similarity_by_url.get(a.get("url"), 0.0)
+        )
+        skor_terbaik = similarity_by_url.get(artikel_terbaik.get("url"), 0.0)
 
-    if len(kandidat_setelah_gambar) == 1:
-        return kandidat_setelah_gambar[0]
+        if skor_terbaik > 0.0:
+            return artikel_terbaik.get("stance")
+
+    # Fallback: tidak ada info gambar yang bisa dipakai
+    skor_tertinggi = max(stance_breakdown.values())
+    kandidat = [k for k, v in stance_breakdown.items() if v == skor_tertinggi]
+
+    if len(kandidat) == 1:
+        return kandidat[0]
 
     for kategori in URUTAN_TIE_BREAK:
-        if kategori in kandidat_setelah_gambar:
+        if kategori in kandidat:
             return kategori
-    return kandidat_setelah_gambar[0]
+    return kandidat[0]

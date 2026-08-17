@@ -1,7 +1,7 @@
 <script setup>
 import { ref,computed } from 'vue'
 import FileUploadBox from './FileUploadBox.vue'
-import { ScanSearch } from 'lucide-vue-next';
+import { ScanSearch,FileText,Image } from 'lucide-vue-next';
 
 // isLoading datang dari parent, karena parent yang beneran ngejalanin await API call
 defineProps({
@@ -29,7 +29,7 @@ const errorMessage = computed(() => {
     return `Maksimal ${MAX_CHARS} karakter diperbolehkan (saat ini ${claimText.value.length} karakter). Silakan persingkat teksnya.`
   }
   if (isTooShort.value) {
-    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kata).`
+    return `Minimal ${MIN_WORDS} kata diperlukan (saat ini baru ${wordCount.value} kalimat).`
   }
   return ''
 })
@@ -51,7 +51,9 @@ function handleSubmit() {
   <div class="form-card">
     <div class="form-grid">
       <div class="field">
-        <label class="field-label">📝 Masukkan teks berita atau klaim</label>
+        <label class="field-label">
+          <FileText :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Masukkan teks berita atau klaim
+        </label>
         <textarea
           v-model="claimText"
           class="claim-input"
@@ -63,11 +65,13 @@ function handleSubmit() {
           {{ errorMessage }}
         </p>
         <span class="counter" :class="{ 'counter--error': isTooLong }">
-          {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kata
+          {{ claimText.length }} / {{ MAX_CHARS }} karakter · {{ wordCount }} kalimat
         </span>
       </div>
       <div class="field">
-        <label class="field-label">🖼 Unggah Gambar Pendukung</label>
+        <label class="field-label">
+          <Image :size="20" style="vertical-align: middle; margin-bottom: 2px;" /> Unggah Gambar Pendukung
+        </label>
         <FileUploadBox
           class="file-upload-box"
           label="Unggah Gambar Pendukung"
@@ -151,6 +155,18 @@ function handleSubmit() {
   font-size: 12px;
   color: var(--color-red);
   margin: 6px 0 0;
+}
+
+.counter {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: left;
+  display: block;
+  margin: 6px 2px 0;
+}
+
+.counter--error {
+  color: red;
 }
 
 .btn-check {

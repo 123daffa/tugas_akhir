@@ -1,7 +1,7 @@
 from app.services.frame_extraction_service import extract_keyframes
 from app.services.search_service_gambar import search_related_news_gambar, extract_images_from_articles
-from app.services.kredibilitas_service import calculate_kredibilitas_score
-from app.services.groq_stance_gambar_service import classify_text_by_stance
+from app.services.kredibilitas_service import calculate_score
+from app.services.groq_stance_service import classify_text_by_stance
 from app.services.video_similarity_service import verify_video_relevance_per_artikel
 from app.services.klasifikasi_gabungan_service import tentukan_klasifikasi_akhir_dengan_gambar
 from app.utils.penjelasan_helper import build_penjelasan
@@ -17,8 +17,8 @@ def run_video_pipeline(video_bytes: bytes, caption: str) -> dict:
     berita = hasil_tavily["articles"]
    
     # Step 3: Kredibilitas + artikel terpilih (maks 5)
-    kredibilitas_data = calculate_kredibilitas_score(berita)
-    selected_articles = kredibilitas_data.get("selected_articles", [])
+    data_tavily = calculate_score(berita)
+    selected_articles = data_tavily.get("selected_articles", [])
 
     # Step 3.5: Extract gambar lengkap khusus untuk artikel terpilih (Tavily Extract API)
     selected_articles = extract_images_from_articles(selected_articles)
@@ -38,8 +38,8 @@ def run_video_pipeline(video_bytes: bytes, caption: str) -> dict:
     
     return {
         "jumlah_frame": len(frames),
-        "jumlah_artikel": kredibilitas_data["jumlah_artikel"],
-        "kredibilitas_score": kredibilitas_data["kredibilitas_score"],
+        "jumlah_artikel": data_tavily["jumlah_artikel"],
+        "score_tavily": data_tavily["score_tavily"],
         "klasifikasi": klasifikasi_akhir,
         "confidence": stance_result["confidence_score"] * 100,
         "video_relevance_score": video_result["relevance_score"],

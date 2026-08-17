@@ -7,19 +7,29 @@ import VideoDetectionForm from '../components/detection/VideoDetectionForm.vue'
 import AnalysisResult from '../components/detection/AnalysisResult.vue'
 import ConfidenceScore from '../components/detection/ConfidenceScore.vue'
 import { checkText, checkImage, checkVideo } from '../services/hoaxDetectionService'
-import { showSuccess, showError } from '../utils/alert'
+import { showSuccess, showError, showLoading, closeLoading } from '../utils/alert'
 
 const activeTab = ref('teks')
 const result = ref(null)
 const errorMessage = ref('')
 const isLoading = ref(false)
 
+function startLoading() {
+  isLoading.value = true,
+  showLoading('Analisis sedang berjalan, mohon tunggu...')
+}
+
+function stopLoading() {
+  isLoading.value = false
+  closeLoading()
+}
+
 function mapResult(data, type) {
   const metrics = [
     {
       label: 'Kredibilitas Sumber',
-      value: Math.round(data.kredibilitas_score * 100),
-      color: data.kredibilitas_score >= 0.7 ? 'green' : data.kredibilitas_score >= 0.4 ? 'orange' : 'red'
+      value: Math.round(data.score_tavily * 100),
+      color: data.score_tavily >= 0.7 ? 'green' : data.score_tavily >= 0.4 ? 'orange' : 'red'
     }
   ]
 
@@ -28,11 +38,11 @@ function mapResult(data, type) {
     conclusion: data.penjelasan || data.penjelasan_teks || '',
     articles: data.articles || [],
     jumlah_artikel: data.jumlah_artikel || 0,
-    kredibilitas_score: data.kredibilitas_score || 0,
+    score_tavily: data.score_tavily || 0,
     metrics,
     confidence: data.confidence || 0,
     stance_breakdown: data.stance_breakdown || {
-      'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0
+      'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0 
     },
     alasan_per_artikel: data.alasan_per_artikel || [],
     // field gambar
@@ -53,11 +63,12 @@ function mapResult(data, type) {
 
 async function handleTextSubmit(text) {
   errorMessage.value = ''
-  isLoading.value = true
   result.value = null
+  startLoading()
 
   try {
     const response = await checkText(text)
+    stopLoading()
     if (response.success) {
       result.value = mapResult(response.data, 'text')
       showSuccess('Analisis teks selesai! Hasil sudah siap.')
@@ -66,21 +77,21 @@ async function handleTextSubmit(text) {
       showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
+    stopLoading()
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
-  } finally {
-    isLoading.value = false
   }
 }
 
 async function handleImageSubmit({ text, image }) {
   errorMessage.value = ''
-  isLoading.value = true
   result.value = null
+  startLoading()
 
   try {
     const response = await checkImage(image, text)
+    stopLoading()
     if (response.success) {
       result.value = mapResult(response.data, 'image')
       showSuccess('Analisis gambar selesai! Hasil sudah siap.')
@@ -89,21 +100,21 @@ async function handleImageSubmit({ text, image }) {
       showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
+    stopLoading()
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
-  } finally {
-    isLoading.value = false
   }
 }
 
 async function handleVideoSubmit({ text, video }) {
   errorMessage.value = ''
-  isLoading.value = true
   result.value = null
+  startLoading()
 
   try {
     const response = await checkVideo(video, text)
+    stopLoading()
     if (response.success) {
       result.value = mapResult(response.data, 'video')
       showSuccess('Analisis video selesai! Hasil sudah siap.')
@@ -112,11 +123,10 @@ async function handleVideoSubmit({ text, video }) {
       showError(response.error, 'Analisis Gagal')
     }
   } catch (err) {
+    stopLoading()
     errorMessage.value = 'Terjadi kesalahan, coba lagi'
     showError('Terjadi kesalahan, coba lagi', 'Analisis Gagal')
     console.error(err)
-  } finally {
-    isLoading.value = false
   }
 }
 </script>
@@ -146,10 +156,10 @@ async function handleVideoSubmit({ text, video }) {
         <AnalysisResult
           v-if="result"
           :label="result.label"
-          :penjelasan="result.conclusion"
+          :conclusion="result.conclusion"
           :articles="result.articles"
           :jumlah_artikel="result.jumlah_artikel"
-          :kredibilitas_score="result.kredibilitas_score"
+          :score_tavily="result.score_tavily"
           :confidence="result.confidence"
           :stance_breakdown="result.stance_breakdown"
           :alasan_per_artikel="result.alasan_per_artikel"
@@ -176,6 +186,7 @@ async function handleVideoSubmit({ text, video }) {
 <style scoped>
 .detection-page {
   width: 100%;
+  overflow-x: hidden;
 }
 
 .content-grid {
@@ -185,6 +196,9 @@ async function handleVideoSubmit({ text, video }) {
   align-items: start;
 }
 
+.content-grid > * {
+  min-width: 0; /* KUNCI: cegah grid blowout dari child manapun */
+}
 @media (max-width: 860px) {
   .content-grid {
     grid-template-columns: 1fr;

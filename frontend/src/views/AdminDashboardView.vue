@@ -13,12 +13,34 @@ const stats = ref({
   modeBreakdown: {}
 })
 
+// Warna kategori, senada dengan ResultCard.vue, HistoryCard.vue, dan
+// FilterTabs.vue -- diurutkan dari low harm (hijau/teal) ke high harm
+// (merah tua/abu), mengacu pada "7 Types of Mis- and Disinformation"
+// (First Draft, Claire Wardle 2019).
 const CATEGORY_COLORS = {
   'Fakta': '#20d48a',
-  'False Content': '#ff4d4d',
+  'Satire atau Parodi': '#4dd0c4',
+  'False Connection': '#ffe066',
   'Misleading Content': '#ffcc00',
+  'False Context': '#ff9933',
+  'Imposter Content': '#ff704d',
+  'Manipulated Content': '#ff4d4d',
   'Fabricated Content': '#808080'
 }
+
+// Kategori yang dihitung sebagai "terindikasi hoaks" -- semua kategori
+// selain "Fakta". "Satire atau Parodi" tetap dihitung karena meski tidak
+// berniat menyakiti, tetap berpotensi menyesatkan pembaca (lihat definisi
+// di build_prompt_klasifikasi.py).
+const KATEGORI_HOAKS = [
+  'Satire atau Parodi',
+  'False Connection',
+  'Misleading Content',
+  'False Context',
+  'Imposter Content',
+  'Manipulated Content',
+  'Fabricated Content'
+]
 
 const MODE_LABELS = { text: 'Teks', image: 'Gambar', video: 'Video' }
 const MODE_COLORS = { text: '#111827', image: '#20d48a', video: '#3b82f6' }
@@ -41,7 +63,7 @@ const modeChartData = computed(() =>
 
 const hoaxCount = computed(() => {
   const b = stats.value.categoryBreakdown || {}
-  return (b['False Content'] || 0) + (b['Misleading Content'] || 0) + (b['Fabricated Content'] || 0)
+  return KATEGORI_HOAKS.reduce((total, kategori) => total + (b[kategori] || 0), 0)
 })
 
 async function loadStats() {

@@ -50,7 +50,7 @@ class HistoryService:
         raw_title = input_text if mode == 'text' else caption
         title = (raw_title or '').strip()[:100] or f'Cek {mode}'
 
-        kredibilitas = result.get('kredibilitas_score', 0) or 0
+        kredibilitas = result.get('score_tavily', 0) or 0
         accuracy = round(kredibilitas * 100) if kredibilitas <= 1 else round(kredibilitas)
 
         # Fallback penjelasan: pipeline teks pakai key 'penjelasan',

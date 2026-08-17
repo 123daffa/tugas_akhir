@@ -2,6 +2,11 @@
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import defaultThumbnail from '../../assets/default-thumbnail-home.jpeg'
+import {
+  FileText, Image, Video, Calendar,
+  CheckCircle2, Laugh, Link2, Clock,
+  MapPinOff, Drama, Scissors, AlertTriangle
+} from 'lucide-vue-next'
 
 const props = defineProps({
   id: { type: [String, Number], required: true },
@@ -16,17 +21,21 @@ const props = defineProps({
 // Mapping kategori -> warna badge & icon, senada dengan AnalysisResult.vue
 // biar konsisten di seluruh aplikasi (badge yang sama warnanya di halaman manapun)
 const categoryStyleMap = {
-  'Fakta': { bg: '#20d48a', color: 'white', icon: '✓' },
-  'False Content': { bg: '#ff4d4d', color: 'white', icon: '⚠' },
-  'Misleading Content': { bg: '#ffcc00', color: 'white', icon: '⏱' },
-  'Fabricated Content': { bg: '#808080', color: 'white', icon: '✂' }
+  'Fakta': { bg: '#20d48a', color: 'white', icon: CheckCircle2 },
+  'Satire atau Parodi': { bg: '#4dd0c4', color: 'white', icon: Laugh },
+  'False Connection': { bg: '#ffe066', color: '#333', icon: Link2 },
+  'Misleading Content': { bg: '#ffcc00', color: 'white', icon: Clock },
+  'False Context': { bg: '#ff9933', color: 'white', icon: MapPinOff },
+  'Imposter Content': { bg: '#ff704d', color: 'white', icon: Drama },
+  'Manipulated Content': { bg: '#ff4d4d', color: 'white', icon: Scissors },
+  'Fabricated Content': { bg: '#808080', color: 'white', icon: AlertTriangle }
 }
 
 // Icon kecil di samping tanggal, sesuai jenis konten yang dianalisis
 const typeIconMap = {
-  Teks: '📝',
-  Gambar: '🖼',
-  Video: '🎬'
+  Teks: FileText,
+  Gambar: Image,
+  Video: Video
 }
 
 const displayImage = computed(() => props.image || defaultThumbnail)
@@ -44,14 +53,18 @@ const displayImage = computed(() => props.image || defaultThumbnail)
           color: categoryStyleMap[category]?.color
         }"
       >
-        {{ categoryStyleMap[category]?.icon }} {{ category }}
+        <component :is="categoryStyleMap[category]?.icon" :size="14" style="vertical-align: middle; margin-right: 4px;" />{{ category }}
       </span>
     </div>
 
     <div class="card-body">
       <div class="meta-row">
-        <span class="meta-item">📅 {{ date }}</span>
-        <span class="meta-item">{{ typeIconMap[type] }} {{ type }}</span>
+        <span class="meta-item">
+          <Calendar :size="14" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />{{ date }}
+        </span>
+        <span class="meta-item">
+          <component :is="typeIconMap[type]" :size="14" style="vertical-align: middle; margin-bottom: 2px; margin-right: 3px;" />{{ type }}
+        </span>
       </div>
 
       <h3 class="card-title">{{ title }}</h3>

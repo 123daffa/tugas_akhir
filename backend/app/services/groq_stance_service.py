@@ -10,17 +10,47 @@ groq_client = Groq(api_key=settings.GROQ_API_KEY)
 # Urutan prioritas tie-break kalau ada 2+ kategori dengan jumlah suara sama-sama
 # tertinggi. "Fakta" sengaja diletakkan PALING TERAKHIR -- kesimpulan positif
 # hanya boleh menang lewat mayoritas jelas, bukan kebetulan hasil seri.
-# "Misleading Content" diletakkan PALING ATAS karena maknanya paling
-# merepresentasikan situasi ambigu (sebagian sumber bilang benar, sebagian salah).
-URUTAN_TIE_BREAK = ["Misleading Content", "False Content", "Fabricated Content", "Fakta"]
+# Selain "Fakta", urutan mengikuti spektrum low->high harm dari "7 Types of
+# Mis- and Disinformation" (First Draft, Claire Wardle 2019) -- kalau seri,
+# kategori dengan tuduhan paling ringan yang menang lebih dulu (pendekatan
+# konservatif, tidak langsung lompat ke tuduhan terberat).
+URUTAN_TIE_BREAK = [
+    "Satire atau Parodi",
+    "False Connection",
+    "Misleading Content",
+    "False Context",
+    "Imposter Content",
+    "Manipulated Content",
+    "Fabricated Content",
+    "Fakta",
+]
+
+# Kategori default kalau parsing/klasifikasi Groq gagal atau hasilnya di luar
+# KATEGORI_VALID. Dipilih "Fabricated Content" karena ini kategori paling
+# "aman secara default" -- gagal analisis dianggap sebagai kasus paling
+# berisiko tinggi (bukan otomatis dianggap Fakta atau tuduhan ringan).
+KATEGORI_FALLBACK = "Fabricated Content"
+
+# 8 kategori final, dipakai untuk inisialisasi breakdown vote supaya semua
+# key selalu ada di hasil akhir (meskipun jumlahnya 0).
+SEMUA_KATEGORI = [
+    "Fakta",
+    "Satire atau Parodi",
+    "False Connection",
+    "Misleading Content",
+    "False Context",
+    "Imposter Content",
+    "Manipulated Content",
+    "Fabricated Content",
+]
 
 
 def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
     """Bandingkan klaim vs isi SATU artikel (snippet Tavily, field 'content'),
-    Groq langsung memutuskan salah satu dari 4 kategori final -- dinilai
+    Groq langsung memutuskan salah satu dari 8 kategori final -- dinilai
     SATU artikel per panggilan, bukan gabungan sekaligus."""
     title = article.get("title", "Tanpa judul")
-    snippet = article.get("content", "")[:1000]
+    snippet = article.get("content", "")
     prompt = build_prompt_klasifikasi(claim, title, snippet)
 
     try:
@@ -28,16 +58,18 @@ def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
             model=GROQ_MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
-            max_tokens=200,
+            max_completion_tokens=1024,   # naik dari 200 -> ada ruang untuk reasoning + JSON output
+            reasoning_effort="low",
             response_format={"type": "json_object"}
         )
         hasil = json.loads(response.choices[0].message.content)
         if hasil.get("klasifikasi") not in KATEGORI_VALID:
-            hasil["klasifikasi"] = "False Content"
+            hasil["klasifikasi"] = KATEGORI_FALLBACK
         return hasil
     except Exception as e:
         print(f"[WARNING] Gagal klasifikasi 1 artikel: {e}")
-        return {"klasifikasi": "False Content", "alasan": "Gagal dianalisis"}
+        return {"klasifikasi": KATEGORI_FALLBACK, "alasan": "Gagal dianalisis"}
+
 
 def _tentukan_pemenang_vote(breakdown: dict) -> str:
     """
@@ -61,20 +93,22 @@ def _tentukan_pemenang_vote(breakdown: dict) -> str:
 
 def classify_text_by_stance(claim: str, selected_articles: list) -> dict:
     """
-    Klasifikasi ke 4 kategori (Fakta / False Content / Misleading Content /
-    Fabricated Content) berdasarkan MAJORITY VOTE MURNI (plurality, hitungan
-    biasa per artikel) dari hasil klasifikasi Groq. Bobot skor kredibilitas
-    Tavily TIDAK DIPAKAI di sini. Kalau seri, tie-break pakai URUTAN_TIE_BREAK.
+    Klasifikasi ke 8 kategori (Fakta / Satire atau Parodi / False Connection /
+    Misleading Content / False Context / Imposter Content / Manipulated
+    Content / Fabricated Content) berdasarkan MAJORITY VOTE MURNI (plurality,
+    hitungan biasa per artikel) dari hasil klasifikasi Groq. Bobot skor
+    kredibilitas Tavily TIDAK DIPAKAI di sini. Kalau seri, tie-break pakai
+    URUTAN_TIE_BREAK.
     """
     if not selected_articles:
         return {
-            "klasifikasi": "False Content",
+            "klasifikasi": KATEGORI_FALLBACK,
             "confidence_score": 0.0,
-            "stance_breakdown": {"Fakta": 0, "False Content": 0, "Misleading Content": 0, "Fabricated Content": 0},
+            "stance_breakdown": {kategori: 0 for kategori in SEMUA_KATEGORI},
             "alasan_per_artikel": []
         }
 
-    breakdown = {"Fakta": 0, "False Content": 0, "Misleading Content": 0, "Fabricated Content": 0}
+    breakdown = {kategori: 0 for kategori in SEMUA_KATEGORI}
     alasan_list = []
 
     print(f"[INFO] Mulai klasifikasi majority vote untuk {len(selected_articles)} artikel...")
@@ -82,7 +116,7 @@ def classify_text_by_stance(claim: str, selected_articles: list) -> dict:
     for i, article in enumerate(selected_articles, start=1):
         print(f"[INFO] ({i}/{len(selected_articles)}) Klasifikasi: {article.get('title', 'Tanpa judul')}")
         hasil = vote_single_article_klasifikasi(claim, article)
-        klasifikasi = hasil.get("klasifikasi", "False Content")
+        klasifikasi = hasil.get("klasifikasi", KATEGORI_FALLBACK)
         breakdown[klasifikasi] += 1
 
         alasan_list.append({

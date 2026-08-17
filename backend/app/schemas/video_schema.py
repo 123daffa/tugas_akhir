@@ -5,7 +5,7 @@ from typing import List, Optional
 class VideoCheckResponse:
     jumlah_frame: int
     jumlah_artikel: int
-    kredibilitas_score: float
+    score_tavily: float
     klasifikasi: str
     confidence: float
     video_relevance_score: float

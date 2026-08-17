@@ -4,7 +4,7 @@ from typing import List, Optional
 @dataclass
 class ImageCheckResponse:
     jumlah_artikel: int
-    kredibilitas_score: float
+    score_tavily: float
     klasifikasi: str
     confidence: float
     image_relevance_score: float

@@ -102,3 +102,19 @@ export async function confirmAndDelete({
     return false
   }
 }
+
+export function showLoading(message = 'Memproses...') {
+  Swal.fire({
+    title: message,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading()
+    }
+  })
+}
+
+export function closeLoading() {
+  Swal.close()
+}
