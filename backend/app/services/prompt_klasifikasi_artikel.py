@@ -80,33 +80,41 @@ soal seberapa "serius" topiknya, tapi soal potensi menyesatkan orang:
 
 - Satire atau Parodi [Harm Terendah]: tidak berniat menyakiti/menipu, tapi
   berpotensi membuat orang salah paham kalau dibaca lepas dari konteks
-  aslinya.
+  aslinya. (mis. artikel satir yang sengaja dilebih-lebihkan, atau meme parodi yang
+  meniru gaya media mainstream tapi isinya jelas tidak serius).
 
 - False Connection [Harm Rendah]: judul, visual, atau caption pada klaim
   tidak didukung/tidak sesuai dengan isi konten sebenarnya (pola clickbait)
   -- pembaca yang baca sampai isi lengkap masih bisa menyadari
-  ketidaksesuaiannya.
+  ketidaksesuaiannya. (mis. judul artikel menyesatkan, tapi isi artikel tetap membahas topik yang sama
+  dan tidak menipu pembaca; atau gambar/video yang dipakai untuk ilustrasi)
 
 - Misleading Content [Harm Rendah-Sedang]: informasi digunakan secara
   menyesatkan untuk membingkai suatu isu atau individu -- lewat pemenggalan
   kutipan, statistik yang dipilih secara bias, atau framing yang mengubah
-  makna asli -- lebih sulit disadari karena sebagian informasinya genuine.
+  makna asli -- lebih sulit disadari karena sebagian informasinya genuine. (mis. kutipan asli 
+  tapi dipotong sehingga maknanya berubah, atau data asli tapi disajikan tanpa konteks sehingga menjadi menyesatkan).
 
 - False Context [Harm Sedang]: konten (foto/video/kejadian) yang genuine
   disebarkan bersama informasi konteks yang salah -- mis. foto/video asli
   diklaim terjadi di tempat/waktu/situasi yang berbeda dari aslinya --
   meyakinkan karena materinya benar-benar asli, cuma konteksnya dipalsukan.
+  (mis. foto asli dari bencana alam di satu negara diklaim sebagai bencana di negara lain, 
+  atau video asli dari acara tertentu diklaim sebagai kejadian kriminal).
 
 - Imposter Content [Harm Sedang-Tinggi]: sumber genuine (logo media, nama
   jurnalis, institusi, tokoh publik) dipalsukan/ditiru untuk membuat klaim
   palsu terlihat kredibel -- memanfaatkan kepercayaan orang pada nama besar,
-  sehingga pembaca cenderung percaya tanpa cek lebih lanjut.
+  sehingga pembaca cenderung percaya tanpa cek lebih lanjut. (biasanya link 
+  palsu terkait lowongan kerja, donasi, atau berita palsu yang mengatasnamakan media/instansi resmi).
 
 - Manipulated Content [Harm Tinggi]: informasi atau imagery genuine
   dimanipulasi secara teknis untuk menipu -- video/audio diedit,
   dipercepat/diperlambat, atau gambar digabungkan/di-crop secara menipu --
   butuh keahlian teknis untuk mendeteksi, jadi lebih sulit dibantah pembaca
-  awam.
+  awam.(mis. video asli dari wawancara politikus yang diedit sehingga terlihat 
+  mengucapkan hal yang tidak pernah diucapkan, atau foto asli dari peristiwa 
+  tertentu yang digabungkan dengan elemen lain untuk membuat narasi palsu).
 
 - Fabricated Content [Harm Tertinggi]: konten yang 100% baru dan palsu,
   tidak berdasar dari kejadian nyata manapun, dirancang sepenuhnya dan

@@ -35,15 +35,24 @@ def run_video_pipeline(video_bytes: bytes, caption: str) -> dict:
         stance_result["alasan_per_artikel"],
         video_result["detail_per_artikel"]
     )
-    
+
+    # PENTING: klasifikasi_akhir bisa berbeda dari stance_result["klasifikasi"]
+    # (di-override berdasar relevansi video/frame). confidence & penjelasan_teks
+    # HARUS ikut merujuk ke klasifikasi_akhir, bukan hasil majority vote teks
+    # murni -- supaya badge, kesimpulan, dan confidence yang tampil ke user
+    # selalu konsisten satu sama lain.
+    confidence_final = round(
+        stance_result["stance_breakdown"].get(klasifikasi_akhir, 0) / len(selected_articles) * 100, 2
+    ) if selected_articles else 0.0
+
     return {
         "jumlah_frame": len(frames),
         "jumlah_artikel": data_tavily["jumlah_artikel"],
         "score_tavily": data_tavily["score_tavily"],
         "klasifikasi": klasifikasi_akhir,
-        "confidence": stance_result["confidence_score"] * 100,
+        "confidence": confidence_final,
         "video_relevance_score": video_result["relevance_score"],
-        "penjelasan_teks": build_penjelasan(stance_result),
+        "penjelasan_teks": build_penjelasan(stance_result, klasifikasi_akhir),
         "penjelasan_video": video_result["penjelasan"],
         "artikel_video_paling_relevan": video_result.get("artikel_paling_relevan"),   # ← BARIS BARU
         "stance_breakdown": stance_result["stance_breakdown"],

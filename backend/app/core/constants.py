@@ -4,7 +4,8 @@ CLIP_SIMILARITY_FLOOR = 0.45
 CLIP_SIMILARITY_CEILING = 0.85
 
 # ===== Label Klasifikasi =====
-KATEGORI_VALID = {"Fakta", "False Content", "Misleading Content", "Fabricated Content"}
+KATEGORI_VALID = {"Fakta", "Satire atau Parodi", "False Connection", "Misleading Content",
+                   "False Context", "Imposter Content", "Manipulated Content", "Fabricated Content"}
 
 # ===== Konfigurasi Tavily Search =====
 TAVILY_MAX_RESULTS = 10

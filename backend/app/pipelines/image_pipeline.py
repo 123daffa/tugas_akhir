@@ -32,13 +32,22 @@ def run_image_pipeline(user_image, caption: str) -> dict:
         image_result["detail_per_artikel"]
     )
 
+    # PENTING: klasifikasi_akhir bisa berbeda dari stance_result["klasifikasi"]
+    # (di-override berdasar relevansi gambar). confidence & penjelasan_teks
+    # HARUS ikut merujuk ke klasifikasi_akhir, bukan hasil majority vote teks
+    # murni -- supaya badge, kesimpulan, dan confidence yang tampil ke user
+    # selalu konsisten satu sama lain.
+    confidence_final = round(
+        stance_result["stance_breakdown"].get(klasifikasi_akhir, 0) / len(selected_articles) * 100, 2
+    ) if selected_articles else 0.0
+
     return {
         "jumlah_artikel": data_tavily["jumlah_artikel"],
         "score_tavily": data_tavily["score_tavily"],
         "klasifikasi": klasifikasi_akhir,
-        "confidence": stance_result["confidence_score"] * 100,
+        "confidence": confidence_final,
         "image_relevance_score": image_result["relevance_score"],
-        "penjelasan_teks": build_penjelasan(stance_result),
+        "penjelasan_teks": build_penjelasan(stance_result, klasifikasi_akhir),
         "penjelasan_gambar": image_result["penjelasan"],
         "artikel_gambar_paling_relevan": image_result.get("artikel_paling_relevan"),
         "stance_breakdown": stance_result["stance_breakdown"],

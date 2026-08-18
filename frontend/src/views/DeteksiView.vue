@@ -42,7 +42,14 @@ function mapResult(data, type) {
     metrics,
     confidence: data.confidence || 0,
     stance_breakdown: data.stance_breakdown || {
-      'Fakta': 0, 'False Content': 0, 'Misleading Content': 0, 'Fabricated Content': 0 
+      'Fakta': 0,
+      'Satire atau Parodi': 0,
+      'False Connection': 0,
+      'Misleading Content': 0,
+      'False Context': 0,
+      'Imposter Content': 0,
+      'Manipulated Content': 0,
+      'Fabricated Content': 0
     },
     alasan_per_artikel: data.alasan_per_artikel || [],
     // field gambar
