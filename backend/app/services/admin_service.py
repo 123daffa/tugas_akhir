@@ -2,7 +2,8 @@ from app.repositories.user_repository import UserRepository
 from app.repositories.detection_repository import DetectionRepository
 from app.utils.errors import NotFoundError, ConflictError, ServiceError
 
-CATEGORY_LABELS = ['Fakta', 'False Content', 'Misleading Content', 'Fabricated Content']
+CATEGORY_LABELS = {"Fakta", "Satire atau Parodi", "False Connection", "Misleading Content",
+                   "False Context", "Imposter Content", "Manipulated Content", "Fabricated Content"}
 
 
 class AdminService:
@@ -27,7 +28,7 @@ class AdminService:
         if not full_name or not email or not password:
             raise ServiceError('Nama, email, dan password wajib diisi.')
         if len(password) < 6:
-            raise ServiceError('Password minimal 6 karakter.')
+            raise ServiceError('Password minimal 8 karakter.')
         if UserRepository.email_taken(email):
             raise ConflictError('Email sudah digunakan akun lain.')
 

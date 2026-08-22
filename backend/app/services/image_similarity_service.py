@@ -14,7 +14,7 @@ def verify_image_relevance_per_artikel(user_image, selected_articles: list) -> d
     """
     Similarity gambar user vs gambar tiap artikel, MURNI pakai CLIP (lokal,
     tanpa panggilan LLM/API eksternal sama sekali untuk gambar). Weighted
-    aggregate by skor kredibilitas Tavily, pola sama seperti voting stance teks.
+    aggregate by skor Tavily, pola sama seperti voting stance teks.
     """
     weighted_score = 0.0
     total_weight = 0.0

@@ -12,7 +12,7 @@ def run_image_pipeline(user_image, caption: str) -> dict:
     hasil_tavily = search_related_news_gambar(caption, include_images=False)
     berita = hasil_tavily["articles"]
 
-    # Step 2: Kredibilitas + artikel terpilih (maks 5)
+    # Step 2: Score + artikel terpilih (maks 5)
     data_tavily = calculate_score(berita)
     selected_articles = data_tavily.get("selected_articles", [])
 

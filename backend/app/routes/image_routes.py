@@ -7,7 +7,6 @@ from app.schemas.image_schema import ImageCheckResponse
 from app.schemas.common_schema import ErrorResponse
 from app.services.history_service import HistoryService
 from app.services.storage_service import upload_bytes
-from app.utils.image_utils import compress_image_to_data_uri
 
 image_bp = Blueprint("image", __name__)
 

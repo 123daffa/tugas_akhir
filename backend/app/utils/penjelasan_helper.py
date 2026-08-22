@@ -1,4 +1,4 @@
-def build_penjelasan(stance_result: dict) -> str:
+def build_penjelasan(stance_result: dict, klasifikasi_final: str = None) -> str:
     """
     Rakit penjelasan singkat dari hasil majority vote 8 kategori.
     """

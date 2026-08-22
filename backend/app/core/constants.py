@@ -1,5 +1,5 @@
 # ===== Threshold untuk Klasifikasi =====
-MINIMAL_SCORES_TAVILY = 0.8
+MINIMAL_SCORES_TAVILY = 0.7
 CLIP_SIMILARITY_FLOOR = 0.45
 CLIP_SIMILARITY_CEILING = 0.85
 
@@ -16,14 +16,13 @@ TAVILY_MAX_RETRIES = 3
 TAVILY_RETRY_BASE_DELAY = 2
 
 # ===== Konfigurasi Video Pipeline =====
-MAX_FRAMES_TO_EXTRACT = 5          # jumlah frame yang diambil dari video
-FRAME_EXTRACTION_INTERVAL_SEC = 2  # ambil 1 frame tiap berapa detik
+MAX_FRAMES_TO_EXTRACT = 5          # jumlah frame yang diambil dari video  # ambil 1 frame tiap berapa detik
 MAX_VIDEO_DURATION_SECONDS = 60
 MIN_IMAGE_DIMENSION = 32
 
 # ===== Konfigurasi Model =====
 # MAX_TEXT_LENGTH = 512        # batas panjang teks untuk tokenizer
-GROQ_MODEL_NAME = "openai/gpt-oss-20b" 
+GROQ_MODEL_NAME = "openai/gpt-oss-120b" 
 
 # ===== Limitasi File Upload =====
 MAX_IMAGE_SIZE_MB = 10

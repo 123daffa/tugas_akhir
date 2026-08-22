@@ -19,7 +19,7 @@ def search_related_news(query: str) -> list:
         results = response.get("results", [])
         print(f"[INFO] Tavily menemukan {len(results)} artikel untuk query: '{query}'")
         for article in results:
-            print(f"  - {article.get('title')} ({article.get('url')}) | Score: {article.get('score')}")
+            print(f"  - {article.get('title')} {article.get('content')} ({article.get('url')}) | Score: {article.get('score')}")
         return results
 
     except Exception as e:

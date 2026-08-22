@@ -31,6 +31,8 @@ def search_related_news_gambar(query: str, include_images: bool = False) -> dict
             )
             results = response.get("results", [])
             print(f"[INFO] Tavily menemukan {len(results)} artikel untuk query: '{query}'")
+            for article in results:
+                print(f"  - {article.get('title')} {article.get('content')} ({article.get('url')}) | Score: {article.get('score')}")
             return {"articles": results}
 
         except TAVILY_RETRYABLE_ERRORS as e:

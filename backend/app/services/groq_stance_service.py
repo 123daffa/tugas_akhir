@@ -50,7 +50,7 @@ def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
     Groq langsung memutuskan salah satu dari 8 kategori final -- dinilai
     SATU artikel per panggilan, bukan gabungan sekaligus."""
     title = article.get("title", "Tanpa judul")
-    snippet = article.get("content", "")
+    snippet = article.get("content", "")  # potongan isi artikel (snippet) maksimal 3000 karakter
     prompt = build_prompt_klasifikasi(claim, title, snippet)
 
     try:
@@ -58,7 +58,7 @@ def vote_single_article_klasifikasi(claim: str, article: dict) -> dict:
             model=GROQ_MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0,
-            max_completion_tokens=1024,   # naik dari 200 -> ada ruang untuk reasoning + JSON output
+            max_completion_tokens=512,   # naik dari 200 -> ada ruang untuk reasoning + JSON output
             reasoning_effort="low",
             response_format={"type": "json_object"}
         )
